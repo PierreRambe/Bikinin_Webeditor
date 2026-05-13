@@ -1226,13 +1226,8 @@ export default function DashboardPage() {
 
           {activeTab === "assets" && (
             <div className="flex-1 overflow-y-auto px-3 pb-3">
-              <p className={cn("text-[10px] font-bold tracking-[0.16em] uppercase mb-1 pt-4 px-1", dark ? "text-white/55" : "text-[#8A8070]")}>
-                <span className="md:hidden">KETUK UNTUK TAMBAH</span>
-                <span className="hidden md:inline">SERET KE CANVAS</span>
-              </p>
-              <p className={cn("text-[9px] px-1 mb-3", dark ? "text-white/40" : "text-[#B0A898]")}>
-                <span className="md:hidden">Aset langsung masuk ke canvas</span>
-                <span className="hidden md:inline">Atau ketuk untuk langsung menambahkan</span>
+              <p className={cn("text-[10px] font-bold tracking-[0.16em] uppercase mb-3 pt-4 px-1", dark ? "text-white/55" : "text-[#8A8070]")}>
+                ASET
               </p>
               {ASSET_CATEGORIES.map(cat => (
                 <div key={cat.group} className="mb-4">
@@ -1246,12 +1241,12 @@ export default function DashboardPage() {
                         draggable
                         onDragStart={() => setDraggedAsset({ id: crypto.randomUUID(), label: asset.label, icon: asset.icon, price: asset.price })}
                         onDragEnd={() => setDraggedAsset(null)}
-                        onClick={() => addAsset(asset)}
                         className={cn(
-                          "flex items-center gap-2.5 px-3 py-2.5 rounded-xl border cursor-pointer transition-all select-none active:scale-[0.97]",
+                          "flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-all select-none",
+                          "md:cursor-grab md:active:cursor-grabbing",
                           dark
-                            ? "border-white/6 bg-white/2 hover:border-[#A87C4F]/40 hover:bg-[#A87C4F]/8 active:bg-[#A87C4F]/12"
-                            : "border-[#EAE6D8] bg-[#FAF8F4] hover:border-[#A87C4F]/40 hover:bg-[#FBF7F2] active:bg-[#F5EFE6]"
+                            ? "border-white/6 bg-white/2 hover:border-[#A87C4F]/30 hover:bg-[#A87C4F]/6"
+                            : "border-[#EAE6D8] bg-[#FAF8F4] hover:border-[#A87C4F]/40 hover:bg-[#FBF7F2]"
                         )}
                       >
                         <span className="text-[14px] w-5 text-center leading-none flex-none">{asset.icon}</span>
@@ -1263,14 +1258,25 @@ export default function DashboardPage() {
                             {asset.desc}
                           </p>
                         </div>
+
+                        {/* Price badge — desktop only */}
                         <span className={cn(
-                          "text-[9px] font-semibold flex-none px-1.5 py-0.5 rounded-full",
+                          "hidden md:inline text-[9px] font-semibold flex-none px-1.5 py-0.5 rounded-full",
                           asset.price > 0
                             ? dark ? "bg-[#A87C4F]/20 text-[#C9A47A]" : "bg-[#A87C4F]/10 text-[#A87C4F]"
                             : dark ? "bg-[#4CAF7D]/20 text-[#4CAF7D]" : "bg-[#4CAF7D]/10 text-[#4CAF7D]"
                         )}>
                           {asset.price > 0 ? `+${(asset.price / 1_000).toFixed(0)}k` : "Free"}
                         </span>
+
+                        {/* Tambah button — mobile only */}
+                        <button
+                          type="button"
+                          onClick={() => addAsset(asset)}
+                          className="md:hidden flex-none flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold bg-[#A87C4F] text-white transition-all active:scale-95 active:bg-[#9A7045]"
+                        >
+                          <Plus size={10} /> Tambah
+                        </button>
                       </div>
                     ))}
                   </div>
