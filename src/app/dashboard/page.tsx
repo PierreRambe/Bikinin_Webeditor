@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Reorder, useDragControls, motion, AnimatePresence } from "framer-motion";
 import {
   Eye, Send, Moon, Sun, GripVertical, Plus, Trash2, Wand2,
-  Monitor, Smartphone, Settings2, Layers, X, Check, ArrowLeft,
+  Monitor, Smartphone, Settings2, Layers, X, Check, ArrowLeft, Menu,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { cn } from "@/lib/utils";
@@ -782,6 +782,7 @@ export default function DashboardPage() {
   const [showAddModal, setShowAddModal]   = useState(false);
   const [droppedAssets, setDroppedAssets] = useState<DroppedAsset[]>([]);
   const [draggedAsset, setDraggedAsset]   = useState<DroppedAsset | null>(null);
+  const [sidebarOpen, setSidebarOpen]     = useState(false);
   const [moduleContent, setModuleContent] = useState<Record<ModuleKey, Record<string, string>>>(
     { ...DEFAULT_CONTENT }
   );
@@ -903,6 +904,18 @@ export default function DashboardPage() {
 
         {/* ── Left: Logo + Plan + Back ── */}
         <div className="flex items-center gap-2.5">
+          {/* Mobile sidebar toggle */}
+          <button
+            type="button"
+            aria-label="Toggle menu"
+            onClick={() => setSidebarOpen(s => !s)}
+            className={cn(
+              "md:hidden p-1.5 rounded-lg transition-colors",
+              dark ? "text-white/50 hover:text-white/80 hover:bg-white/6" : "text-[#5A5248] hover:text-[#1C1C1C] hover:bg-[#F0EDE6]"
+            )}
+          >
+            {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
           <Logo theme={dark ? "dark" : "light"} size="sm" />
 
           <div className={cn("w-px h-4", dark ? "bg-white/10" : "bg-[#E0D9CC]")} />
@@ -972,7 +985,7 @@ export default function DashboardPage() {
 
               {/* Step label */}
               <span className={cn(
-                "text-[12px] font-medium whitespace-nowrap transition-colors duration-200",
+                "hidden sm:inline text-[12px] font-medium whitespace-nowrap transition-colors duration-200",
                 i === currentStep
                   ? (dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")
                   : i < currentStep
@@ -1000,7 +1013,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-end gap-2">
           {/* View mode toggle */}
           <div className={cn(
-            "flex items-center rounded-lg p-0.5",
+            "hidden md:flex items-center rounded-lg p-0.5",
             dark ? "bg-white/6" : "bg-[#F0EDE6]"
           )}>
             {([["desktop", <Monitor key="m" size={13} />], ["mobile", <Smartphone key="s" size={13} />]] as const).map(([mode, icon]) => (
@@ -1021,13 +1034,13 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          <div className={cn("w-px h-5", dark ? "bg-white/10" : "bg-[#E0D9CC]")} />
+          <div className={cn("hidden md:block w-px h-5", dark ? "bg-white/10" : "bg-[#E0D9CC]")} />
 
           <button
             type="button"
             onClick={() => setCurrentStep(1)}
             className={cn(
-              "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-medium border transition-all",
+              "hidden md:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[12px] font-medium border transition-all",
               dark
                 ? "border-white/10 text-white/50 hover:border-white/20 hover:text-white/70"
                 : "border-[#E0D9CC] text-[#5A5248] hover:border-[#A87C4F]/40 bg-white"
@@ -1052,11 +1065,23 @@ export default function DashboardPage() {
       </header>
 
       {/* ─── BODY ─── */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
+
+        {/* Mobile backdrop */}
+        {sidebarOpen && (
+          <div
+            className="md:hidden fixed inset-x-0 bottom-0 top-14 z-20 bg-black/50 backdrop-blur-sm"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
         {/* ─── LEFT SIDEBAR ─── */}
         <aside className={cn(
-          "w-[264px] flex-none flex flex-col border-r overflow-hidden",
+          "flex flex-col border-r overflow-hidden",
+          "fixed top-14 left-0 z-30 h-[calc(100%-3.5rem)] w-[264px]",
+          "transition-transform duration-300 ease-in-out",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full",
+          "md:static md:translate-x-0 md:h-auto md:flex-none md:w-[264px] md:z-auto",
           dark ? "bg-[#131110] border-white/6" : "bg-white border-[#E0D9CC]"
         )}>
           {/* Tabs */}
@@ -1294,7 +1319,7 @@ export default function DashboardPage() {
           <div className={cn(
             "flex-1 flex items-start justify-center overflow-auto",
             dark ? "bg-[#070604]" : "bg-[#E3DFD5]",
-            viewMode === "desktop" ? "p-8" : "p-8 pt-10"
+            viewMode === "desktop" ? "p-3 md:p-8" : "p-3 pt-6 md:p-8 md:pt-10"
           )}>
             <div
               className={cn(
