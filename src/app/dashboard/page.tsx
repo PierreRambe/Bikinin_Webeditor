@@ -898,30 +898,40 @@ export default function DashboardPage() {
 
       {/* ─── TOP BAR ─── */}
       <header className={cn(
-        "flex-none h-14 grid grid-cols-[1fr_auto_1fr] items-center px-5 border-b z-20",
+        "flex-none h-14 border-b z-20",
+        "flex items-center gap-2 px-3",
+        "md:grid md:grid-cols-[1fr_auto_1fr] md:gap-0 md:px-5",
         dark ? "bg-[#131110] border-white/6" : "bg-white border-[#E0D9CC]"
       )}>
 
-        {/* ── Left: Logo + Plan + Back ── */}
-        <div className="flex items-center gap-2.5">
-          {/* Mobile sidebar toggle */}
+        {/* ── Left ── */}
+        <div className="flex items-center gap-2 min-w-0">
+          {/* Hamburger — mobile/tablet only */}
           <button
             type="button"
             aria-label="Toggle menu"
             onClick={() => setSidebarOpen(s => !s)}
             className={cn(
-              "md:hidden p-1.5 rounded-lg transition-colors",
+              "md:hidden flex-none p-1.5 rounded-lg transition-colors",
               dark ? "text-white/50 hover:text-white/80 hover:bg-white/6" : "text-[#5A5248] hover:text-[#1C1C1C] hover:bg-[#F0EDE6]"
             )}
           >
             {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
-          <Logo theme={dark ? "dark" : "light"} size="sm" />
 
-          <div className={cn("w-px h-4", dark ? "bg-white/10" : "bg-[#E0D9CC]")} />
+          {/* Logo icon only on mobile, full on md+ */}
+          <span className="md:hidden flex-none">
+            <Logo variant="icon" theme={dark ? "dark" : "light"} size="sm" />
+          </span>
+          <span className="hidden md:inline-flex flex-none">
+            <Logo theme={dark ? "dark" : "light"} size="sm" />
+          </span>
+
+          {/* Divider + badge + back link — desktop only */}
+          <div className={cn("hidden md:block w-px h-4 flex-none", dark ? "bg-white/10" : "bg-[#E0D9CC]")} />
 
           <span className={cn(
-            "inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider border",
+            "hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider border flex-none",
             PLAN_BADGE_CLASS[plan]
           )}>
             {PLAN_META[plan].label}
@@ -931,7 +941,7 @@ export default function DashboardPage() {
             <Link
               href="/"
               className={cn(
-                "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all",
+                "hidden md:flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all",
                 dark
                   ? "border-white/10 text-white/40 hover:text-white/70 hover:border-white/20"
                   : "border-[#E0D9CC] text-[#8A8070] hover:text-[#A87C4F] hover:border-[#A87C4F]/30"
@@ -944,7 +954,7 @@ export default function DashboardPage() {
               type="button"
               onClick={() => setCurrentStep(s => s - 1)}
               className={cn(
-                "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all",
+                "hidden md:flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all",
                 dark
                   ? "border-white/10 text-white/40 hover:text-white/70 hover:border-white/20"
                   : "border-[#E0D9CC] text-[#8A8070] hover:text-[#A87C4F] hover:border-[#A87C4F]/30"
@@ -953,10 +963,18 @@ export default function DashboardPage() {
               <ArrowLeft size={11} /> Kembali
             </button>
           )}
+
+          {/* Current step name — mobile only, replaces full step indicator */}
+          <span className={cn(
+            "md:hidden text-[12px] font-semibold truncate",
+            dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]"
+          )}>
+            {STEPS[currentStep]}
+          </span>
         </div>
 
-        {/* ── Center: Step indicator ── */}
-        <div className="flex items-center gap-1">
+        {/* ── Center: Step indicator — desktop only ── */}
+        <div className="hidden md:flex items-center gap-1">
           {STEPS.map((step, i) => (
             <button
               key={step}
@@ -964,7 +982,6 @@ export default function DashboardPage() {
               onClick={() => setCurrentStep(i)}
               className="flex items-center gap-2"
             >
-              {/* Step circle */}
               <motion.div
                 animate={{
                   backgroundColor: i === currentStep ? "#A87C4F" : "transparent",
@@ -983,9 +1000,8 @@ export default function DashboardPage() {
                 {i < currentStep ? <Check size={9} /> : i + 1}
               </motion.div>
 
-              {/* Step label */}
               <span className={cn(
-                "hidden sm:inline text-[12px] font-medium whitespace-nowrap transition-colors duration-200",
+                "text-[12px] font-medium whitespace-nowrap transition-colors duration-200",
                 i === currentStep
                   ? (dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")
                   : i < currentStep
@@ -995,7 +1011,6 @@ export default function DashboardPage() {
                 {step}
               </span>
 
-              {/* Connector */}
               {i < STEPS.length - 1 && (
                 <motion.div
                   animate={{
@@ -1010,8 +1025,28 @@ export default function DashboardPage() {
         </div>
 
         {/* ── Right: Actions ── */}
-        <div className="flex items-center justify-end gap-2">
-          {/* View mode toggle */}
+        <div className="flex items-center justify-end gap-1.5 md:gap-2 flex-none">
+          {/* Step dots — mobile only progress indicator */}
+          <div className="md:hidden flex items-center gap-1.5 mr-1">
+            {STEPS.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setCurrentStep(i)}
+                aria-label={`Langkah ${i + 1}`}
+                className={cn(
+                  "rounded-full transition-all duration-200",
+                  i === currentStep
+                    ? "w-4 h-1.5 bg-[#A87C4F]"
+                    : i < currentStep
+                    ? "w-1.5 h-1.5 bg-[#A87C4F]/50"
+                    : cn("w-1.5 h-1.5", dark ? "bg-white/20" : "bg-[#D0C8B8]")
+                )}
+              />
+            ))}
+          </div>
+
+          {/* View mode toggle — desktop only */}
           <div className={cn(
             "hidden md:flex items-center rounded-lg p-0.5",
             dark ? "bg-white/6" : "bg-[#F0EDE6]"
@@ -1053,13 +1088,15 @@ export default function DashboardPage() {
             type="button"
             onClick={onPublishClick}
             className={cn(
-              "flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[12px] font-semibold transition-all",
+              "flex items-center gap-1.5 rounded-full font-semibold transition-all",
+              "px-2.5 py-1.5 text-[11px] md:px-4 md:text-[12px]",
               dark
                 ? "bg-[#F0EDE8] text-[#1C1C1C] hover:bg-white"
                 : "bg-[#A87C4F] text-white hover:bg-[#9A7045] publish-btn-shadow"
             )}
           >
-            <Send size={11} /> Publikasikan
+            <Send size={11} />
+            <span className="hidden sm:inline">Publikasikan</span>
           </button>
         </div>
       </header>
@@ -1290,15 +1327,28 @@ export default function DashboardPage() {
         <main className="flex-1 flex flex-col overflow-hidden">
           {/* Toolbar */}
           <div className={cn(
-            "flex-none h-9 flex items-center justify-between px-5 border-b",
+            "flex-none h-9 flex items-center justify-between px-3 md:px-5 border-b",
             dark ? "border-white/6 bg-[#0E0C0A]" : "border-[#E0D9CC] bg-[#F5F2EA]"
           )}>
-            <span className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#A87C4F]">
-              LIVE PREVIEW
-            </span>
+            <div className="flex items-center gap-2">
+              {/* Open sidebar button — mobile only, shows when sidebar is closed */}
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(true)}
+                className={cn(
+                  "md:hidden flex items-center gap-1.5 text-[10px] font-semibold px-2 py-1 rounded-lg transition-colors",
+                  dark ? "text-[#A87C4F] hover:bg-white/6" : "text-[#A87C4F] hover:bg-[#F0EDE6]"
+                )}
+              >
+                <Layers size={11} /> Panel
+              </button>
+              <span className="hidden md:inline text-[10px] font-bold tracking-[0.16em] uppercase text-[#A87C4F]">
+                LIVE PREVIEW
+              </span>
+            </div>
             <div className="flex items-center gap-2">
               {selected && (
-                <span className={cn("text-[10px]", dark ? "text-white/30" : "text-[#8A8070]")}>
+                <span className={cn("hidden sm:inline text-[10px]", dark ? "text-white/30" : "text-[#8A8070]")}>
                   Dipilih: <span className="text-[#A87C4F] font-medium">{modules.find(m => m.key === selected)?.label}</span>
                 </span>
               )}
@@ -1325,7 +1375,7 @@ export default function DashboardPage() {
               className={cn(
                 "preview-canvas overflow-hidden rounded-xl transition-all duration-300 min-h-[540px]",
                 dark ? "bg-[#0E0C0A]" : "bg-white",
-                viewMode === "desktop" ? "w-full max-w-[860px]" : "w-[375px]"
+                viewMode === "desktop" ? "w-full max-w-[860px]" : "w-full max-w-[375px]"
               )}
             >
               {/* Browser chrome */}
@@ -1413,7 +1463,8 @@ export default function DashboardPage() {
                     dark ? "border-white/6 text-white/20" : "border-[#E0D9CC] text-[#C0B8A8]"
                   )}
                 >
-                  Seret aset dari panel kiri ke sini
+                  <span className="hidden md:inline">Seret aset dari panel kiri ke sini</span>
+                  <span className="md:hidden">Buka panel lalu pilih aset</span>
                 </div>
               </div>
             </div>
@@ -1434,7 +1485,7 @@ export default function DashboardPage() {
             />
             <motion.div
               className={cn(
-                "fixed z-50 left-1/2 top-1/2 w-full max-w-sm rounded-2xl border shadow-2xl overflow-hidden",
+                "fixed z-50 left-1/2 top-1/2 w-[calc(100%-2rem)] max-w-sm rounded-2xl border shadow-2xl overflow-hidden",
                 dark ? "bg-[#131110] border-white/8" : "bg-white border-[#EAE6D8]"
               )}
               initial={{ opacity: 0, scale: 0.92, x: "-50%", y: "-50%" }}
