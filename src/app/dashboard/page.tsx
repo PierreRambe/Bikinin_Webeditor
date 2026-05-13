@@ -305,7 +305,7 @@ function ModuleRow({
       </span>
 
       {module.price > 0 && (
-        <span className={cn("text-[10px] pointer-events-none", dark ? "text-white/25" : "text-[#B0A898]")}>
+        <span className={cn("text-[10px] pointer-events-none", dark ? "text-white/55" : "text-[#B0A898]")}>
           +{(module.price / 1_000).toFixed(0)}k
         </span>
       )}
@@ -382,9 +382,9 @@ function ModulePreview({
         field="subtitle"
         isEditable={isSelected}
         onSave={onContentChange}
-        className={cn("text-[10px] mb-4 block", dark ? "text-white/35" : "text-[#8A8070]")}
+        className={cn("text-[10px] mb-4 block", dark ? "text-white/60" : "text-[#8A8070]")}
       />
-      <span className={cn("inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-semibold", dark ? "bg-[#F0EDE8] text-[#1C1C1C]" : "bg-[#A87C4F] text-white")}>
+      <span className={cn("inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-semibold", dark ? "bg-[#C9A47A] text-white" : "bg-[#A87C4F] text-white")}>
         <EditableText
           value={content.btnText ?? "Lihat Produk"}
           field="btnText"
@@ -403,7 +403,7 @@ function ModulePreview({
         field="sectionTitle"
         isEditable={isSelected}
         onSave={onContentChange}
-        className={cn("text-[10px] font-semibold uppercase tracking-wider mb-3 block", dark ? "text-white/30" : "text-[#8A8070]")}
+        className={cn("text-[10px] font-semibold uppercase tracking-wider mb-3 block", dark ? "text-white/55" : "text-[#8A8070]")}
       />
       <div className="grid grid-cols-4 gap-2">
         {[1,2,3,4].map(i => (
@@ -435,7 +435,7 @@ function ModulePreview({
         isEditable={isSelected}
         onSave={onContentChange}
         multiline
-        className={cn("text-[10px] leading-relaxed block", dark ? "text-white/35" : "text-[#8A8070]")}
+        className={cn("text-[10px] leading-relaxed block", dark ? "text-white/65" : "text-[#8A8070]")}
       />
     </div>
   );
@@ -443,26 +443,26 @@ function ModulePreview({
   if (moduleKey === "contact") return (
     <div className={cn("px-5 py-4 border-t relative", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8]", ring)}>
       {label_tag}
-      <p className={cn("text-[10px] font-semibold uppercase tracking-wider mb-2", dark ? "text-white/30" : "text-[#8A8070]")}>Hubungi Kami</p>
+      <p className={cn("text-[10px] font-semibold uppercase tracking-wider mb-2", dark ? "text-white/55" : "text-[#8A8070]")}>Hubungi Kami</p>
       <div className="flex flex-wrap gap-4">
-        <span className={cn("text-[10px] flex items-center gap-1", dark ? "text-white/35" : "text-[#5A5248]")}>
+        <span className={cn("text-[10px] flex items-center gap-1", dark ? "text-white/75" : "text-[#5A5248]")}>
           ✉{" "}
           <EditableText
             value={content.email ?? "hello@tokosaya.id"}
             field="email"
             isEditable={isSelected}
             onSave={onContentChange}
-            className={cn("text-[10px]", dark ? "text-white/35" : "text-[#5A5248]")}
+            className={cn("text-[10px]", dark ? "text-white/75" : "text-[#5A5248]")}
           />
         </span>
-        <span className={cn("text-[10px] flex items-center gap-1", dark ? "text-white/35" : "text-[#5A5248]")}>
+        <span className={cn("text-[10px] flex items-center gap-1", dark ? "text-white/75" : "text-[#5A5248]")}>
           📱{" "}
           <EditableText
             value={content.phone ?? "+62 812 3456 7890"}
             field="phone"
             isEditable={isSelected}
             onSave={onContentChange}
-            className={cn("text-[10px]", dark ? "text-white/35" : "text-[#5A5248]")}
+            className={cn("text-[10px]", dark ? "text-white/75" : "text-[#5A5248]")}
           />
         </span>
       </div>
@@ -493,7 +493,7 @@ function AssetPreview({ label, dark }: { label: string; dark: boolean }) {
         <div>
           <p className={cn("text-[9px] font-bold uppercase tracking-widest mb-1", dark ? "text-[#A87C4F]/60" : "text-[#A87C4F]/70")}>BANNER UTAMA</p>
           <p className={cn("text-[14px] font-semibold mb-0.5", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>Gambar Hero Full-Width</p>
-          <p className={cn("text-[9px]", dark ? "text-white/30" : "text-[#8A8070]")}>Upload gambar 1920 × 600 px</p>
+          <p className={cn("text-[9px]", dark ? "text-white/55" : "text-[#8A8070]")}>Upload gambar 1920 × 600 px</p>
         </div>
         <div className={cn("w-16 h-16 rounded-xl border-2 border-dashed flex items-center justify-center", dark ? "border-white/15" : "border-[#D0C8B8]")}>
           <span className="text-[24px]">🖼</span>
@@ -504,7 +504,7 @@ function AssetPreview({ label, dark }: { label: string; dark: boolean }) {
 
   if (label === "Foto Produk") return (
     <div className={cn("p-4", dark ? "bg-[#0E0C0A]" : "bg-white")}>
-      <p className={cn("text-[9px] font-bold uppercase tracking-wider mb-2.5", dark ? "text-white/25" : "text-[#8A8070]")}>GALERI FOTO PRODUK</p>
+      <p className={cn("text-[9px] font-bold uppercase tracking-wider mb-2.5", dark ? "text-white/55" : "text-[#8A8070]")}>GALERI FOTO PRODUK</p>
       <div className="grid grid-cols-3 gap-2">
         {["📸","🖼","📷","🎨","🖌","📸"].map((emoji, i) => (
           <div key={i} className={cn("aspect-square rounded-lg flex items-center justify-center text-[18px]", dark ? "bg-[#1A1612]" : "bg-[#F0EDE6]")}>{emoji}</div>
@@ -533,15 +533,15 @@ function AssetPreview({ label, dark }: { label: string; dark: boolean }) {
         </div>
         <p className="absolute top-2 right-3 text-[8px] text-white/40">0:00 / 3:24</p>
       </div>
-      <p className={cn("text-[9px] mt-2", dark ? "text-white/25" : "text-[#C0B8A8]")}>YouTube / Vimeo embed</p>
+      <p className={cn("text-[9px] mt-2", dark ? "text-white/55" : "text-[#C0B8A8]")}>YouTube / Vimeo embed</p>
     </div>
   );
 
   if (label === "Heading Besar") return (
     <div className={cn("px-5 py-5 border-t", dark ? "border-white/6 bg-[#131110]" : "border-[#EAE6D8] bg-white")}>
-      <p className={cn("text-[9px] font-bold uppercase tracking-wider mb-2", dark ? "text-[#A87C4F]/50" : "text-[#A87C4F]/60")}>JUDUL SECTION</p>
+      <p className={cn("text-[9px] font-bold uppercase tracking-wider mb-2", dark ? "text-[#C9A47A]" : "text-[#A87C4F]/60")}>JUDUL SECTION</p>
       <p className={cn("text-[22px] font-serif-display leading-tight mb-1", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>Judul Halaman Utama</p>
-      <p className={cn("text-[11px]", dark ? "text-white/30" : "text-[#8A8070]")}>Subtitle atau tagline singkat</p>
+      <p className={cn("text-[11px]", dark ? "text-white/60" : "text-[#8A8070]")}>Subtitle atau tagline singkat</p>
     </div>
   );
 
@@ -552,7 +552,7 @@ function AssetPreview({ label, dark }: { label: string; dark: boolean }) {
           <div key={i} className={cn("h-2 rounded-full", dark ? "bg-white/8" : "bg-[#E8E4D8]", wClass)} />
         ))}
       </div>
-      <p className={cn("text-[9px] mt-2.5", dark ? "text-white/20" : "text-[#C0B8A8]")}>Teks deskripsi produk / layanan Anda</p>
+      <p className={cn("text-[9px] mt-2.5", dark ? "text-white/50" : "text-[#C0B8A8]")}>Teks deskripsi produk / layanan Anda</p>
     </div>
   );
 
@@ -590,7 +590,7 @@ function AssetPreview({ label, dark }: { label: string; dark: boolean }) {
 
   if (label === "Chat WhatsApp") return (
     <div className={cn("px-4 py-4 border-t", dark ? "border-white/6 bg-[#131110]" : "border-[#EAE6D8] bg-white")}>
-      <p className={cn("text-[9px] mb-3", dark ? "text-white/25" : "text-[#C0B8A8]")}>Floating button · posisi kanan bawah halaman</p>
+      <p className={cn("text-[9px] mb-3", dark ? "text-white/55" : "text-[#C0B8A8]")}>Floating button · posisi kanan bawah halaman</p>
       <div className="flex justify-end">
         <button type="button" className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#25D366] text-white cursor-default shadow-lg text-[12px] font-semibold">
           <span>💬</span> Chat WhatsApp
@@ -616,7 +616,7 @@ function AssetPreview({ label, dark }: { label: string; dark: boolean }) {
   if (label === "Newsletter") return (
     <div className={cn("px-4 py-5 border-t text-center", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8] bg-[#FBF7F2]")}>
       <p className={cn("text-[12px] font-semibold mb-1", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>Dapatkan Update & Promo</p>
-      <p className={cn("text-[9px] mb-3", dark ? "text-white/30" : "text-[#8A8070]")}>Daftar newsletter — gratis!</p>
+      <p className={cn("text-[9px] mb-3", dark ? "text-white/60" : "text-[#8A8070]")}>Daftar newsletter — gratis!</p>
       <div className="flex gap-2">
         <div className={cn("flex-1 h-8 rounded-lg border flex items-center px-3", dark ? "border-white/8 bg-[#131110]" : "border-[#EAE6D8] bg-white")}>
           <p className={cn("text-[9px]", dark ? "text-white/20" : "text-[#C0B8A8]")}>Email Anda...</p>
@@ -628,7 +628,7 @@ function AssetPreview({ label, dark }: { label: string; dark: boolean }) {
 
   if (label === "Kartu Produk") return (
     <div className={cn("p-4 border-t", dark ? "border-white/6 bg-[#131110]" : "border-[#EAE6D8] bg-white")}>
-      <p className={cn("text-[9px] font-bold uppercase tracking-wider mb-3", dark ? "text-white/25" : "text-[#8A8070]")}>PRODUK PILIHAN</p>
+      <p className={cn("text-[9px] font-bold uppercase tracking-wider mb-3", dark ? "text-white/55" : "text-[#8A8070]")}>PRODUK PILIHAN</p>
       <div className="grid grid-cols-2 gap-3">
         {[{name:"Produk A",price:"Rp 175.000"},{name:"Produk B",price:"Rp 225.000"}].map(p => (
           <div key={p.name} className={cn("rounded-xl border overflow-hidden", dark ? "border-white/8 bg-[#1A1612]" : "border-[#EAE6D8]")}>
@@ -647,13 +647,13 @@ function AssetPreview({ label, dark }: { label: string; dark: boolean }) {
   if (label === "Label Harga") return (
     <div className={cn("px-5 py-4 border-t flex items-center gap-4", dark ? "border-white/6 bg-[#131110]" : "border-[#EAE6D8] bg-white")}>
       <div>
-        <p className={cn("text-[9px] line-through mb-0.5", dark ? "text-white/25" : "text-[#C0B8A8]")}>Rp 300.000</p>
+        <p className={cn("text-[9px] line-through mb-0.5", dark ? "text-white/45" : "text-[#C0B8A8]")}>Rp 300.000</p>
         <p className="text-[20px] font-bold text-[#A87C4F]">Rp 175.000</p>
         <span className="text-[9px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-500 font-bold inline-block mt-1">HEMAT 42%</span>
       </div>
       <div className={cn("flex-1 rounded-xl border p-3", dark ? "border-[#A87C4F]/20 bg-[#A87C4F]/8" : "border-[#A87C4F]/20 bg-[#FBF7F2]")}>
         <p className="text-[8px] font-bold text-[#A87C4F] mb-0.5">HARGA SPESIAL</p>
-        <p className={cn("text-[9px]", dark ? "text-[#C9A47A]/60" : "text-[#A87C4F]/70")}>Berlaku s/d akhir bulan</p>
+        <p className={cn("text-[9px]", dark ? "text-[#C9A47A]" : "text-[#A87C4F]/70")}>Berlaku s/d akhir bulan</p>
       </div>
     </div>
   );
@@ -694,14 +694,14 @@ function AssetPreview({ label, dark }: { label: string; dark: boolean }) {
 
   if (label === "Testimoni") return (
     <div className={cn("p-4 border-t", dark ? "border-white/6 bg-[#131110]" : "border-[#EAE6D8] bg-white")}>
-      <p className={cn("text-[9px] font-bold uppercase tracking-wider mb-3", dark ? "text-white/25" : "text-[#8A8070]")}>APA KATA PELANGGAN</p>
+      <p className={cn("text-[9px] font-bold uppercase tracking-wider mb-3", dark ? "text-white/55" : "text-[#8A8070]")}>APA KATA PELANGGAN</p>
       <div className="grid grid-cols-2 gap-2">
         {[{name:"Budi S.",text:"Produk sangat berkualitas!",stars:5},{name:"Sari A.",text:"Pengiriman cepat, recommended.",stars:4}].map(t => (
           <div key={t.name} className={cn("rounded-xl p-3 border", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8] bg-[#FAF8F4]")}>
             <div className="flex gap-0.5 mb-1.5">
               {[1,2,3,4,5].map(i => <span key={i} className={i <= t.stars ? "text-yellow-400 text-[10px]" : "text-[#D0C8B8] text-[10px]"}>★</span>)}
             </div>
-            <p className={cn("text-[9px] mb-2 leading-relaxed", dark ? "text-white/45" : "text-[#5A5248]")}>{t.text}</p>
+            <p className={cn("text-[9px] mb-2 leading-relaxed", dark ? "text-white/70" : "text-[#5A5248]")}>{t.text}</p>
             <p className={cn("text-[9px] font-semibold", dark ? "text-[#C9A47A]" : "text-[#A87C4F]")}>{t.name}</p>
           </div>
         ))}
@@ -715,7 +715,7 @@ function AssetPreview({ label, dark }: { label: string; dark: boolean }) {
         {[{num:"1.2k+",label:"Pelanggan"},{num:"98%",label:"Puas"},{num:"4.9★",label:"Rating"}].map(s => (
           <div key={s.label}>
             <p className={cn("text-[18px] font-bold", dark ? "text-[#C9A47A]" : "text-[#A87C4F]")}>{s.num}</p>
-            <p className={cn("text-[9px]", dark ? "text-white/30" : "text-[#8A8070]")}>{s.label}</p>
+            <p className={cn("text-[9px]", dark ? "text-white/60" : "text-[#8A8070]")}>{s.label}</p>
           </div>
         ))}
       </div>
@@ -724,11 +724,11 @@ function AssetPreview({ label, dark }: { label: string; dark: boolean }) {
 
   if (label === "Logo Klien") return (
     <div className={cn("px-4 py-4 border-t", dark ? "border-white/6 bg-[#131110]" : "border-[#EAE6D8] bg-white")}>
-      <p className={cn("text-[9px] font-bold uppercase tracking-wider mb-3 text-center", dark ? "text-white/25" : "text-[#8A8070]")}>DIPERCAYA OLEH</p>
+      <p className={cn("text-[9px] font-bold uppercase tracking-wider mb-3 text-center", dark ? "text-white/55" : "text-[#8A8070]")}>DIPERCAYA OLEH</p>
       <div className="grid grid-cols-4 gap-2">
         {["Brand A","Mitra B","Klien C","Brand D"].map(b => (
           <div key={b} className={cn("rounded-lg border flex items-center justify-center h-9", dark ? "border-white/8 bg-[#1A1612]" : "border-[#EAE6D8] bg-[#FAF8F4]")}>
-            <p className={cn("text-[8px] font-semibold", dark ? "text-white/25" : "text-[#C0B8A8]")}>{b}</p>
+            <p className={cn("text-[8px] font-semibold", dark ? "text-white/50" : "text-[#C0B8A8]")}>{b}</p>
           </div>
         ))}
       </div>
@@ -1147,7 +1147,7 @@ export default function DashboardPage() {
                 <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#A87C4F] mb-0.5">
                   MODUL WEBSITE
                 </p>
-                <p className={cn("text-[10px]", dark ? "text-white/30" : "text-[#A0998A]")}>
+                <p className={cn("text-[10px]", dark ? "text-white/55" : "text-[#A0998A]")}>
                   Seret untuk urut ulang · toggle aktifkan
                 </p>
               </div>
@@ -1193,13 +1193,13 @@ export default function DashboardPage() {
                   "rounded-xl p-4 border",
                   dark ? "bg-[#A87C4F]/8 border-[#A87C4F]/20" : "bg-[#FBF7F2] border-[#E8DFD0]"
                 )}>
-                  <p className={cn("text-[10px] font-bold tracking-[0.14em] uppercase mb-1", dark ? "text-white/30" : "text-[#8A8070]")}>
+                  <p className={cn("text-[10px] font-bold tracking-[0.14em] uppercase mb-1", dark ? "text-white/55" : "text-[#8A8070]")}>
                     ADD-ON BIAYA
                   </p>
                   <p className={cn("text-[22px] leading-tight font-serif-display mb-0.5", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>
                     {addOnPrice === 0 ? "Gratis" : `Rp ${addOnPrice.toLocaleString("id-ID")}`}
                   </p>
-                  <p className={cn("text-[9px] mb-2", dark ? "text-white/25" : "text-[#B0A898]")}>
+                  <p className={cn("text-[9px] mb-2", dark ? "text-white/50" : "text-[#B0A898]")}>
                     di luar biaya berlangganan
                   </p>
                   <div className={cn("w-full h-1 rounded-full mb-2", dark ? "bg-white/8" : "bg-[#E8DFD0]")}>
@@ -1210,7 +1210,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#4CAF7D]" />
-                    <p className={cn("text-[10px]", dark ? "text-white/28" : "text-[#8A8070]")}>
+                    <p className={cn("text-[10px]", dark ? "text-white/60" : "text-[#8A8070]")}>
                       {activeModules.length} modul · {droppedAssets.length} aset
                     </p>
                   </div>
