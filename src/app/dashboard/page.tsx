@@ -832,6 +832,11 @@ export default function DashboardPage() {
   const removeAsset = (id: string) =>
     setDroppedAssets(prev => prev.filter(a => a.id !== id));
 
+  const addAsset = (asset: { label: string; icon: string; price: number }) => {
+    setDroppedAssets(prev => [...prev, { id: crypto.randomUUID(), label: asset.label, icon: asset.icon, price: asset.price }]);
+    if (typeof window !== "undefined" && window.innerWidth < 768) setSidebarOpen(false);
+  };
+
   const handleModuleContentChange = (moduleKey: ModuleKey, field: string, value: string) => {
     setModuleContent(prev => ({
       ...prev,
@@ -1179,7 +1184,7 @@ export default function DashboardPage() {
                   className={cn(
                     "w-full mt-2 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-dashed text-[11px] font-medium transition-all",
                     dark
-                      ? "border-white/10 text-white/25 hover:border-[#A87C4F]/40 hover:text-[#A87C4F]"
+                      ? "border-white/15 text-white/45 hover:border-[#A87C4F]/40 hover:text-[#A87C4F]"
                       : "border-[#DDD8CC] text-[#B0A898] hover:border-[#A87C4F]/50 hover:text-[#A87C4F]"
                   )}
                 >
@@ -1221,12 +1226,17 @@ export default function DashboardPage() {
 
           {activeTab === "assets" && (
             <div className="flex-1 overflow-y-auto px-3 pb-3">
-              <p className={cn("text-[10px] font-bold tracking-[0.16em] uppercase mb-3 pt-4 px-1", dark ? "text-white/30" : "text-[#8A8070]")}>
-                SERET KE CANVAS
+              <p className={cn("text-[10px] font-bold tracking-[0.16em] uppercase mb-1 pt-4 px-1", dark ? "text-white/55" : "text-[#8A8070]")}>
+                <span className="md:hidden">KETUK UNTUK TAMBAH</span>
+                <span className="hidden md:inline">SERET KE CANVAS</span>
+              </p>
+              <p className={cn("text-[9px] px-1 mb-3", dark ? "text-white/40" : "text-[#B0A898]")}>
+                <span className="md:hidden">Aset langsung masuk ke canvas</span>
+                <span className="hidden md:inline">Atau ketuk untuk langsung menambahkan</span>
               </p>
               {ASSET_CATEGORIES.map(cat => (
                 <div key={cat.group} className="mb-4">
-                  <p className={cn("text-[9px] font-bold tracking-[0.14em] uppercase px-1 mb-1.5", dark ? "text-[#A87C4F]/60" : "text-[#A87C4F]/70")}>
+                  <p className={cn("text-[9px] font-bold tracking-[0.14em] uppercase px-1 mb-1.5", dark ? "text-[#C9A47A]" : "text-[#A87C4F]/70")}>
                     {cat.group}
                   </p>
                   <div className="flex flex-col gap-1">
@@ -1236,23 +1246,29 @@ export default function DashboardPage() {
                         draggable
                         onDragStart={() => setDraggedAsset({ id: crypto.randomUUID(), label: asset.label, icon: asset.icon, price: asset.price })}
                         onDragEnd={() => setDraggedAsset(null)}
+                        onClick={() => addAsset(asset)}
                         className={cn(
-                          "flex items-center gap-2.5 px-3 py-2 rounded-xl border cursor-grab active:cursor-grabbing transition-all select-none",
+                          "flex items-center gap-2.5 px-3 py-2.5 rounded-xl border cursor-pointer transition-all select-none active:scale-[0.97]",
                           dark
-                            ? "border-white/6 bg-white/2 hover:border-[#A87C4F]/40 hover:bg-[#A87C4F]/8"
-                            : "border-[#EAE6D8] bg-[#FAF8F4] hover:border-[#A87C4F]/40 hover:bg-[#FBF7F2]"
+                            ? "border-white/6 bg-white/2 hover:border-[#A87C4F]/40 hover:bg-[#A87C4F]/8 active:bg-[#A87C4F]/12"
+                            : "border-[#EAE6D8] bg-[#FAF8F4] hover:border-[#A87C4F]/40 hover:bg-[#FBF7F2] active:bg-[#F5EFE6]"
                         )}
                       >
-                        <span className="text-[14px] w-5 text-center leading-none">{asset.icon}</span>
+                        <span className="text-[14px] w-5 text-center leading-none flex-none">{asset.icon}</span>
                         <div className="flex-1 min-w-0">
-                          <p className={cn("text-[11px] font-medium leading-tight truncate", dark ? "text-[#F0EDE8]/80" : "text-[#2A2520]")}>
+                          <p className={cn("text-[11px] font-medium leading-tight truncate", dark ? "text-[#F0EDE8]" : "text-[#2A2520]")}>
                             {asset.label}
                           </p>
-                          <p className={cn("text-[9px] leading-tight", dark ? "text-white/25" : "text-[#B0A898]")}>
+                          <p className={cn("text-[9px] leading-tight", dark ? "text-white/50" : "text-[#B0A898]")}>
                             {asset.desc}
                           </p>
                         </div>
-                        <span className={cn("text-[9px] font-semibold flex-none", asset.price > 0 ? "text-[#A87C4F]" : "text-[#4CAF7D]")}>
+                        <span className={cn(
+                          "text-[9px] font-semibold flex-none px-1.5 py-0.5 rounded-full",
+                          asset.price > 0
+                            ? dark ? "bg-[#A87C4F]/20 text-[#C9A47A]" : "bg-[#A87C4F]/10 text-[#A87C4F]"
+                            : dark ? "bg-[#4CAF7D]/20 text-[#4CAF7D]" : "bg-[#4CAF7D]/10 text-[#4CAF7D]"
+                        )}>
                           {asset.price > 0 ? `+${(asset.price / 1_000).toFixed(0)}k` : "Free"}
                         </span>
                       </div>
@@ -1265,7 +1281,7 @@ export default function DashboardPage() {
 
           {activeTab === "templates" && (
             <div className="flex-1 overflow-y-auto px-3 pb-3">
-              <p className={cn("text-[10px] font-bold tracking-[0.16em] uppercase mb-3 pt-4 px-1", dark ? "text-white/30" : "text-[#8A8070]")}>
+              <p className={cn("text-[10px] font-bold tracking-[0.16em] uppercase mb-3 pt-4 px-1", dark ? "text-white/55" : "text-[#8A8070]")}>
                 PILIH TEMPLATE
               </p>
               <div className="flex flex-col gap-2">
@@ -1275,7 +1291,7 @@ export default function DashboardPage() {
                     type="button"
                     onClick={() => applyTemplate(tmpl.id)}
                     className={cn(
-                      "w-full text-left rounded-xl border overflow-hidden transition-all hover:-translate-y-0.5",
+                      "w-full text-left rounded-xl border overflow-hidden transition-all active:scale-[0.98]",
                       dark ? "border-white/8 hover:border-[#A87C4F]/40" : "border-[#EAE6D8] hover:border-[#A87C4F]/40 hover:shadow-sm"
                     )}
                   >
@@ -1283,7 +1299,7 @@ export default function DashboardPage() {
                       <p className={cn("text-[11px] font-semibold leading-tight truncate", tmpl.colorText)}>
                         {tmpl.preview.hero}
                       </p>
-                      <p className="text-[9px] text-[#8A8070] mt-0.5 truncate">{tmpl.preview.sub}</p>
+                      <p className={cn("text-[9px] mt-0.5 truncate", dark ? "text-white/55" : "text-[#8A8070]")}>{tmpl.preview.sub}</p>
                     </div>
                     <div className={cn("px-3 py-2 flex items-center gap-2", dark ? "bg-[#0E0C0A]" : "bg-white")}>
                       <div className={cn("w-2 h-2 rounded-full flex-none", tmpl.colorDot)} />
@@ -1291,7 +1307,7 @@ export default function DashboardPage() {
                         <p className={cn("text-[11px] font-medium truncate", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>
                           {tmpl.name}
                         </p>
-                        <p className={cn("text-[9px]", dark ? "text-white/30" : "text-[#8A8070]")}>{tmpl.category}</p>
+                        <p className={cn("text-[9px]", dark ? "text-white/55" : "text-[#8A8070]")}>{tmpl.category}</p>
                       </div>
                       {tmpl.tag && (
                         <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-[#A87C4F]/12 text-[#A87C4F]">
@@ -1357,7 +1373,7 @@ export default function DashboardPage() {
                 onClick={() => setSelected(null)}
                 className={cn(
                   "text-[10px] px-2 py-0.5 rounded transition-colors",
-                  dark ? "text-white/25 hover:text-white/50" : "text-[#8A8070] hover:text-[#4A4540]"
+                  dark ? "text-white/50 hover:text-white/80" : "text-[#8A8070] hover:text-[#4A4540]"
                 )}
               >
                 Batal pilih
@@ -1373,7 +1389,7 @@ export default function DashboardPage() {
           )}>
             <div
               className={cn(
-                "preview-canvas overflow-hidden rounded-xl transition-all duration-300 min-h-[540px]",
+                "preview-canvas overflow-hidden rounded-xl transition-all duration-300 min-h-[360px] md:min-h-[540px]",
                 dark ? "bg-[#0E0C0A]" : "bg-white",
                 viewMode === "desktop" ? "w-full max-w-[860px]" : "w-full max-w-[375px]"
               )}
