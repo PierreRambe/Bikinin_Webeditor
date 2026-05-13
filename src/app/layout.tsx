@@ -5,6 +5,13 @@ export const metadata: Metadata = {
   title: "Bikinin — Bangun Website Profesional Tanpa Koding",
   description: "Website eksklusif untuk UMKM dan Profesional Indonesia. Buat website premium tanpa koding dalam 5 menit.",
   keywords: ["website builder", "UMKM", "no-code", "website Indonesia", "Bikinin"],
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     title: "Bikinin — Bangun Website Profesional Tanpa Koding",
     description: "Website eksklusif untuk UMKM dan Profesional Indonesia.",

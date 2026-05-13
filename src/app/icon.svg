@@ -1,0 +1,15 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Badge background -->
+  <rect x="1" y="1" width="30" height="30" rx="8" fill="#A87C4F"/>
+  <!-- Subtle inner highlight -->
+  <rect x="1" y="1" width="30" height="15" rx="8" fill="white" fill-opacity="0.06"/>
+  <!-- Geometric B letterform (evenodd hollows the bow interiors) -->
+  <path fill-rule="evenodd" d="
+    M8 7L13 7Q23 7 23 12Q23 16.5 13 16.5
+    Q25.5 16.5 25.5 21.5Q25.5 26 13 26L8 26Z
+    M13 9.5Q21 9.5 21 12Q21 14.5 13 14.5Z
+    M13 19Q23 19 23 21.5Q23 23.5 13 23.5Z
+  " fill="white"/>
+  <!-- Sparkle dot top-right -->
+  <circle cx="26" cy="6" r="1.5" fill="white" fill-opacity="0.5"/>
+</svg>
