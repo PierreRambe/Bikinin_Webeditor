@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Reorder, useDragControls, motion, AnimatePresence } from "framer-motion";
+import { Reorder, useDragControls, motion } from "framer-motion";
 import {
-  Eye, Send, Moon, Sun, GripVertical, Plus, Trash2, Wand2,
+  Eye, Send, Moon, Sun, GripVertical, Plus, Wand2,
   Monitor, Smartphone, Settings2, Layers, X, Check, ArrowLeft, Menu,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
@@ -16,9 +16,9 @@ type ModuleKey = "navbar" | "hero" | "gallery" | "about" | "contact" | "footer";
 type PlanKey = "free" | "pro" | "enterprise";
 
 const PLAN_META: Record<PlanKey, { label: string; color: string; limit: string; bg: string }> = {
-  free:       { label: "GRATIS",      color: "#4CAF7D", limit: "10 fitur",      bg: "#4CAF7D15" },
-  pro:        { label: "PRO",         color: "#A87C4F", limit: "50 fitur",      bg: "#A87C4F15" },
-  enterprise: { label: "ENTERPRISE",  color: "#8B4513", limit: "Tak terbatas",  bg: "#8B451315" },
+  free:       { label: "GRATIS",   color: "#4CAF7D", limit: "Gratis selamanya", bg: "#4CAF7D15" },
+  pro:        { label: "STARTER",  color: "#A87C4F", limit: "Semua fitur",      bg: "#A87C4F15" },
+  enterprise: { label: "PRO",      color: "#8B4513", limit: "Tak terbatas",     bg: "#8B451315" },
 };
 
 const PLAN_BADGE_CLASS: Record<PlanKey, string> = {
@@ -37,12 +37,12 @@ interface Module {
 
 /* ─── Constants ── */
 const INITIAL_MODULES: Module[] = [
-  { key: "navbar",  label: "Navbar",        icon: "≡", price: 0,       active: true  },
-  { key: "hero",    label: "Hero Section",  icon: "◉", price: 0,       active: true  },
-  { key: "gallery", label: "Galeri Produk", icon: "⊞", price: 250_000, active: true  },
-  { key: "about",   label: "Tentang Kami",  icon: "ℹ", price: 150_000, active: false },
-  { key: "contact", label: "Kontak",        icon: "✉", price: 200_000, active: true  },
-  { key: "footer",  label: "Footer",        icon: "▭", price: 0,       active: false },
+  { key: "navbar",  label: "Navbar",        icon: "≡", price: 0, active: false },
+  { key: "hero",    label: "Hero Section",  icon: "◉", price: 0, active: false },
+  { key: "gallery", label: "Galeri Produk", icon: "⊞", price: 0, active: false },
+  { key: "about",   label: "Tentang Kami",  icon: "ℹ", price: 0, active: false },
+  { key: "contact", label: "Kontak",        icon: "✉", price: 0, active: false },
+  { key: "footer",  label: "Footer",        icon: "▭", price: 0, active: false },
 ];
 
 const STEPS = ["Pilih Modul", "Atur Konten", "Publikasi"] as const;
@@ -57,7 +57,7 @@ const ASSET_CATEGORIES = [
       { label: "Hero Banner",    icon: "🖼",  price: 0,      desc: "Gambar besar di bagian atas" },
       { label: "Foto Produk",    icon: "📸",  price: 0,      desc: "Grid foto produk 2×2" },
       { label: "Pola Latar",     icon: "✦",   price: 0,      desc: "Background pattern dekoratif" },
-      { label: "Video Embed",    icon: "▶",   price: 50_000, desc: "Embed YouTube/Vimeo" },
+      { label: "Video Embed",    icon: "▶",   price: 0,      desc: "Embed YouTube/Vimeo" },
     ],
   },
   {
@@ -73,38 +73,38 @@ const ASSET_CATEGORIES = [
     group: "Interaktif",
     items: [
       { label: "Tombol CTA",     icon: "⬛",  price: 0,      desc: "Call-to-action button" },
-      { label: "Chat WhatsApp",  icon: "💬",  price: 25_000, desc: "Floating WA button" },
-      { label: "Form Kontak",    icon: "📋",  price: 50_000, desc: "Form nama + email + pesan" },
-      { label: "Newsletter",     icon: "📧",  price: 50_000, desc: "Form subscribe email" },
+      { label: "Chat WhatsApp",  icon: "💬",  price: 0,      desc: "Floating WA button" },
+      { label: "Form Kontak",    icon: "📋",  price: 25_000, desc: "Form nama + email + pesan" },
+      { label: "Newsletter",     icon: "📧",  price: 25_000, desc: "Form subscribe email" },
     ],
   },
   {
     group: "Produk & Toko",
     items: [
-      { label: "Kartu Produk",   icon: "📦",  price: 50_000, desc: "Produk dengan harga & CTA" },
-      { label: "Label Harga",    icon: "🏷",  price: 25_000, desc: "Badge diskon / harga khusus" },
-      { label: "Rating Bintang", icon: "⭐",  price: 25_000, desc: "Review bintang 1–5" },
-      { label: "Tombol Beli",    icon: "🛒",  price: 50_000, desc: "Add to cart / order sekarang" },
+      { label: "Kartu Produk",   icon: "📦",  price: 0,      desc: "Produk dengan harga & CTA" },
+      { label: "Label Harga",    icon: "🏷",  price: 0,      desc: "Badge diskon / harga khusus" },
+      { label: "Rating Bintang", icon: "⭐",  price: 0,      desc: "Review bintang 1–5" },
+      { label: "Tombol Beli",    icon: "🛒",  price: 25_000, desc: "Add to cart / order sekarang" },
     ],
   },
   {
     group: "Social Proof",
     items: [
-      { label: "Testimoni",      icon: "💬",  price: 25_000, desc: "Kartu review pelanggan" },
-      { label: "Statistik",      icon: "📊",  price: 50_000, desc: "Angka pencapaian animasi" },
-      { label: "Logo Klien",     icon: "🏆",  price: 25_000, desc: "Grid logo brand / mitra" },
-      { label: "Peta Lokasi",    icon: "📍",  price: 50_000, desc: "Embed Google Maps" },
+      { label: "Testimoni",      icon: "💬",  price: 0,      desc: "Kartu review pelanggan" },
+      { label: "Statistik",      icon: "📊",  price: 25_000, desc: "Angka pencapaian animasi" },
+      { label: "Logo Klien",     icon: "🏆",  price: 0,      desc: "Grid logo brand / mitra" },
+      { label: "Peta Lokasi",    icon: "📍",  price: 25_000, desc: "Embed Google Maps" },
     ],
   },
 ] as const;
 
 const ALL_MODULES: Module[] = [
-  { key: "navbar",  label: "Navbar",        icon: "≡", price: 0,       active: false },
-  { key: "hero",    label: "Hero Section",  icon: "◉", price: 0,       active: false },
-  { key: "gallery", label: "Galeri Produk", icon: "⊞", price: 250_000, active: false },
-  { key: "about",   label: "Tentang Kami",  icon: "ℹ", price: 150_000, active: false },
-  { key: "contact", label: "Kontak",        icon: "✉", price: 200_000, active: false },
-  { key: "footer",  label: "Footer",        icon: "▭", price: 0,       active: false },
+  { key: "navbar",  label: "Navbar",        icon: "≡", price: 0, active: false },
+  { key: "hero",    label: "Hero Section",  icon: "◉", price: 0, active: false },
+  { key: "gallery", label: "Galeri Produk", icon: "⊞", price: 0, active: false },
+  { key: "about",   label: "Tentang Kami",  icon: "ℹ", price: 0, active: false },
+  { key: "contact", label: "Kontak",        icon: "✉", price: 0, active: false },
+  { key: "footer",  label: "Footer",        icon: "▭", price: 0, active: false },
 ];
 
 /* ─── Default module content ── */
@@ -249,19 +249,16 @@ function ModuleRow({
       value={module}
       dragListener={false}
       dragControls={controls}
+      style={{ touchAction: "none" }}
       className={cn(
         "module-item flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer transition-all duration-150 select-none",
-        isSelected && module.active
-          ? dark
-            ? "border-[#A87C4F]/50 bg-[#A87C4F]/10"
-            : "border-[#A87C4F]/50 bg-[#FBF7F2]"
-          : module.active
-          ? dark
-            ? "border-white/8 bg-white/3"
-            : "border-[#EAE6D8] bg-[#FAF8F4]"
+        module.active
+          ? isSelected
+            ? dark ? "border-[#A87C4F]/60 bg-[#A87C4F]/12" : "border-[#A87C4F]/60 bg-[#FBF7F2]"
+            : dark ? "border-[#A87C4F]/35 bg-[#A87C4F]/7" : "border-[#A87C4F]/40 bg-[#FBF7F2]/80"
           : dark
-          ? "border-white/5 bg-transparent hover:border-white/10"
-          : "border-[#EAE6D8] bg-white hover:border-[#D0C8B8]"
+            ? "border-white/10 border-dashed hover:border-[#A87C4F]/35 hover:bg-[#A87C4F]/5"
+            : "border-[#DDD8CC] border-dashed hover:border-[#A87C4F]/45 hover:bg-[#FBF7F2]"
       )}
       whileDrag={{
         scale: 1.02,
@@ -270,11 +267,12 @@ function ModuleRow({
           : "0 8px 32px rgba(0,0,0,0.12)",
         zIndex: 50,
       }}
-      onClick={onSelect}
+      onClick={module.active ? onSelect : onToggle}
     >
       {/* Drag handle */}
       <button
         type="button"
+        style={{ touchAction: "none" }}
         className={cn(
           "flex-none cursor-grab active:cursor-grabbing p-0.5 rounded transition-colors",
           dark
@@ -297,36 +295,22 @@ function ModuleRow({
       <span
         className={cn(
           "flex-1 text-[12px] font-medium pointer-events-none",
-          dark ? "text-[#F0EDE8]" : "text-[#2A2520]",
-          !module.active && (dark ? "opacity-40" : "opacity-50")
+          module.active
+            ? dark ? "text-[#F0EDE8]" : "text-[#2A2520]"
+            : dark ? "text-white/40" : "text-[#8A8070]"
         )}
       >
         {module.label}
       </span>
 
-      {module.price > 0 && (
-        <span className={cn("text-[10px] pointer-events-none", dark ? "text-white/55" : "text-[#B0A898]")}>
-          +{(module.price / 1_000).toFixed(0)}k
+      {/* Active checkmark or add plus */}
+      {module.active ? (
+        <span className="flex-none w-[18px] h-[18px] rounded-full bg-[#A87C4F] flex items-center justify-center pointer-events-none">
+          <Check size={10} className="text-white" />
         </span>
+      ) : (
+        <Plus size={13} className={cn("flex-none pointer-events-none", dark ? "text-white/25" : "text-[#C0B8A8]")} />
       )}
-
-      {/* Toggle */}
-      <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); onToggle(); }}
-        className={cn(
-          "w-8 h-[18px] rounded-full relative transition-all duration-200 flex-none",
-          module.active ? "bg-[#A87C4F]" : dark ? "bg-white/10" : "bg-[#DDD8CC]"
-        )}
-        aria-label={`${module.active ? "Nonaktifkan" : "Aktifkan"} ${module.label}`}
-      >
-        <span
-          className={cn(
-            "absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white shadow-sm transition-all duration-200",
-            module.active ? "left-[16px]" : "left-[2px]"
-          )}
-        />
-      </button>
     </Reorder.Item>
   );
 }
@@ -779,7 +763,6 @@ export default function DashboardPage() {
   const [selected, setSelected]           = useState<ModuleKey | null>("hero");
   const [viewMode, setViewMode]           = useState<ViewMode>("desktop");
   const [activeTab, setActiveTab]         = useState<"modules" | "assets" | "templates">("modules");
-  const [showAddModal, setShowAddModal]   = useState(false);
   const [droppedAssets, setDroppedAssets] = useState<DroppedAsset[]>([]);
   const [draggedAsset, setDraggedAsset]   = useState<DroppedAsset | null>(null);
   const [sidebarOpen, setSidebarOpen]     = useState(false);
@@ -1150,10 +1133,10 @@ export default function DashboardPage() {
               {/* Module list header */}
               <div className="px-4 pt-4 pb-2">
                 <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#A87C4F] mb-0.5">
-                  MODUL WEBSITE
+                  SECTIONS
                 </p>
                 <p className={cn("text-[10px]", dark ? "text-white/55" : "text-[#A0998A]")}>
-                  Seret untuk urut ulang · toggle aktifkan
+                  Ketuk untuk tambah · seret untuk urut ulang
                 </p>
               </div>
 
@@ -1176,20 +1159,6 @@ export default function DashboardPage() {
                     />
                   ))}
                 </Reorder.Group>
-
-                {/* Add module button */}
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(true)}
-                  className={cn(
-                    "w-full mt-2 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-dashed text-[11px] font-medium transition-all",
-                    dark
-                      ? "border-white/15 text-white/45 hover:border-[#A87C4F]/40 hover:text-[#A87C4F]"
-                      : "border-[#DDD8CC] text-[#B0A898] hover:border-[#A87C4F]/50 hover:text-[#A87C4F]"
-                  )}
-                >
-                  <Plus size={12} /> Tambah Modul
-                </button>
               </div>
 
               {/* Cost estimator */}
@@ -1259,9 +1228,10 @@ export default function DashboardPage() {
                           </p>
                         </div>
 
-                        {/* Price badge — desktop only */}
+                        {/* Price badge */}
                         <span className={cn(
-                          "hidden md:inline text-[9px] font-semibold flex-none px-1.5 py-0.5 rounded-full",
+                          "text-[9px] font-semibold flex-none px-1.5 py-0.5 rounded-full",
+                          "hidden md:inline",
                           asset.price > 0
                             ? dark ? "bg-[#A87C4F]/20 text-[#C9A47A]" : "bg-[#A87C4F]/10 text-[#A87C4F]"
                             : dark ? "bg-[#4CAF7D]/20 text-[#4CAF7D]" : "bg-[#4CAF7D]/10 text-[#4CAF7D]"
@@ -1269,13 +1239,18 @@ export default function DashboardPage() {
                           {asset.price > 0 ? `+${(asset.price / 1_000).toFixed(0)}k` : "Free"}
                         </span>
 
-                        {/* Tambah button — mobile only */}
+                        {/* Tambah button — mobile & tablet (touch devices use button instead of drag) */}
                         <button
                           type="button"
                           onClick={() => addAsset(asset)}
-                          className="md:hidden flex-none flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold bg-[#A87C4F] text-white transition-all active:scale-95 active:bg-[#9A7045]"
+                          className={cn(
+                            "md:hidden flex-none flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all active:scale-95",
+                            asset.price > 0
+                              ? "bg-[#A87C4F] text-white active:bg-[#9A7045]"
+                              : dark ? "bg-[#4CAF7D]/20 text-[#4CAF7D]" : "bg-[#4CAF7D]/15 text-[#3A9E6D]"
+                          )}
                         >
-                          <Plus size={10} /> Tambah
+                          <Plus size={10} /> {asset.price > 0 ? `+${(asset.price / 1_000).toFixed(0)}k` : "Tambah"}
                         </button>
                       </div>
                     ))}
@@ -1424,6 +1399,24 @@ export default function DashboardPage() {
                   }
                 }}
               >
+                {/* Empty state */}
+                {modules.filter(m => m.active).length === 0 && droppedAssets.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+                    <div className={cn(
+                      "w-14 h-14 rounded-2xl flex items-center justify-center mb-4",
+                      dark ? "bg-white/5" : "bg-[#A87C4F]/8"
+                    )}>
+                      <Layers size={24} className={cn(dark ? "text-white/20" : "text-[#A87C4F]/40")} />
+                    </div>
+                    <p className={cn("text-[13px] font-medium mb-1.5", dark ? "text-white/50" : "text-[#5A5248]")}>
+                      Workspace kosong
+                    </p>
+                    <p className={cn("text-[11px] max-w-[200px] leading-relaxed", dark ? "text-white/25" : "text-[#A0998A]")}>
+                      Ketuk section di panel kiri untuk mulai membangun website kamu
+                    </p>
+                  </div>
+                )}
+
                 {modules
                   .filter(m => m.active)
                   .map(m => (
@@ -1440,16 +1433,19 @@ export default function DashboardPage() {
                         content={moduleContent[m.key]}
                         onContentChange={(field, value) => handleModuleContentChange(m.key, field, value)}
                       />
-                      {selected === m.key && m.price !== 0 && (
-                        <button
-                          type="button"
-                          onClick={e => { e.stopPropagation(); toggleModule(m.key); }}
-                          className="absolute top-1 right-1 w-5 h-5 rounded bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20"
-                          title="Nonaktifkan modul"
-                        >
-                          <Trash2 size={10} />
-                        </button>
-                      )}
+                      {/* Remove button - touch-friendly (always partially visible) */}
+                      <button
+                        type="button"
+                        onClick={e => { e.stopPropagation(); toggleModule(m.key); if (selected === m.key) setSelected(null); }}
+                        className={cn(
+                          "absolute top-1.5 right-1.5 w-6 h-6 rounded-full flex items-center justify-center transition-all z-20",
+                          "bg-black/30 hover:bg-red-500/90 text-white",
+                          "md:opacity-0 md:group-hover:opacity-100 opacity-60"
+                        )}
+                        aria-label={`Hapus ${m.label}`}
+                      >
+                        <X size={9} />
+                      </button>
                     </div>
                   ))}
 
@@ -1458,19 +1454,19 @@ export default function DashboardPage() {
                   <div key={asset.id} className="relative group">
                     <AssetPreview label={asset.label} dark={dark} />
                     <div className="absolute top-2 right-2 flex items-center gap-1.5">
-                      <span className={cn(
-                        "text-[9px] font-bold px-2 py-0.5 rounded-full",
-                        asset.price > 0
-                          ? "bg-[#A87C4F] text-white"
-                          : "bg-[#4CAF7D] text-white"
-                      )}>
-                        {asset.price > 0 ? `+Rp ${asset.price.toLocaleString("id-ID")}` : "Gratis"}
-                      </span>
+                      {asset.price > 0 && (
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#A87C4F] text-white">
+                          +Rp {asset.price.toLocaleString("id-ID")}
+                        </span>
+                      )}
                       <button
                         type="button"
                         onClick={() => removeAsset(asset.id)}
                         aria-label="Hapus aset"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity w-5 h-5 rounded-full bg-red-500/80 text-white flex items-center justify-center"
+                        className={cn(
+                          "w-6 h-6 rounded-full bg-black/30 hover:bg-red-500/90 text-white flex items-center justify-center transition-all",
+                          "md:opacity-0 md:group-hover:opacity-100 opacity-60"
+                        )}
                       >
                         <X size={9} />
                       </button>
@@ -1478,102 +1474,24 @@ export default function DashboardPage() {
                   </div>
                 ))}
 
-                {/* Drop zone */}
-                <div
-                  className={cn(
-                    "flex items-center justify-center py-5 border-2 border-dashed mx-4 my-4 rounded-xl text-[11px] transition-colors",
-                    dark ? "border-white/6 text-white/20" : "border-[#E0D9CC] text-[#C0B8A8]"
-                  )}
-                >
-                  <span className="hidden md:inline">Seret aset dari panel kiri ke sini</span>
-                  <span className="md:hidden">Buka panel lalu pilih aset</span>
-                </div>
+                {/* Drop zone for assets (only shows when modules exist or hidden on mobile) */}
+                {(modules.filter(m => m.active).length > 0 || droppedAssets.length > 0) && (
+                  <div
+                    className={cn(
+                      "flex items-center justify-center py-4 border-2 border-dashed mx-4 my-3 rounded-xl text-[11px] transition-colors",
+                      dark ? "border-white/6 text-white/20" : "border-[#E0D9CC] text-[#C0B8A8]"
+                    )}
+                  >
+                    <span className="hidden md:inline">Seret aset dari panel kiri ke sini</span>
+                    <span className="md:hidden">Buka panel → Aset untuk menambahkan</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </main>
       </div>
 
-      {/* ─── ADD MODULE MODAL ─── */}
-      <AnimatePresence>
-        {showAddModal && (
-          <>
-            <motion.div
-              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowAddModal(false)}
-            />
-            <motion.div
-              className={cn(
-                "fixed z-50 left-1/2 top-1/2 w-[calc(100%-2rem)] max-w-sm rounded-2xl border shadow-2xl overflow-hidden",
-                dark ? "bg-[#131110] border-white/8" : "bg-white border-[#EAE6D8]"
-              )}
-              initial={{ opacity: 0, scale: 0.92, x: "-50%", y: "-50%" }}
-              animate={{ opacity: 1, scale: 1,    x: "-50%", y: "-50%" }}
-              exit={{   opacity: 0, scale: 0.92,  x: "-50%", y: "-50%" }}
-              transition={{ type: "spring", stiffness: 320, damping: 28 }}
-            >
-              {/* Header */}
-              <div className={cn("flex items-center justify-between px-5 py-4 border-b", dark ? "border-white/6" : "border-[#EAE6D8]")}>
-                <div>
-                  <p className="section-eyebrow">TAMBAH MODUL</p>
-                  <p className={cn("text-[11px] mt-0.5", dark ? "text-white/30" : "text-[#8A8070]")}>Pilih modul untuk ditambahkan ke website</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  aria-label="Tutup"
-                  className={cn("w-7 h-7 rounded-full flex items-center justify-center transition-colors", dark ? "bg-white/8 hover:bg-white/14 text-white/50" : "bg-[#F0EDE6] hover:bg-[#E8E4D8] text-[#5A5248]")}
-                >
-                  <X size={13} />
-                </button>
-              </div>
-
-              {/* Module list */}
-              <div className="p-4 flex flex-col gap-2">
-                {ALL_MODULES.map(mod => {
-                  const alreadyAdded = modules.some(m => m.key === mod.key && m.active);
-                  return (
-                    <button
-                      key={mod.key}
-                      type="button"
-                      disabled={alreadyAdded}
-                      onClick={() => {
-                        if (!alreadyAdded) {
-                          setModules(prev => prev.map(m => m.key === mod.key ? { ...m, active: true } : m));
-                          setShowAddModal(false);
-                        }
-                      }}
-                      className={cn(
-                        "flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all",
-                        alreadyAdded
-                          ? dark ? "border-white/5 opacity-35 cursor-not-allowed" : "border-[#EAE6D8] opacity-40 cursor-not-allowed"
-                          : dark
-                            ? "border-white/8 hover:border-[#A87C4F]/50 hover:bg-[#A87C4F]/8"
-                            : "border-[#EAE6D8] hover:border-[#A87C4F]/50 hover:bg-[#FBF7F2]"
-                      )}
-                    >
-                      <span className="text-[16px] w-6 text-center text-[#A87C4F]">{mod.icon}</span>
-                      <div className="flex-1">
-                        <p className={cn("text-[13px] font-medium", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>{mod.label}</p>
-                        <p className={cn("text-[11px]", dark ? "text-white/30" : "text-[#8A8070]")}>
-                          {mod.price > 0 ? `+Rp ${(mod.price / 1_000).toFixed(0)}k` : "Gratis"}
-                        </p>
-                      </div>
-                      {alreadyAdded
-                        ? <span className={cn("text-[10px] font-medium", dark ? "text-white/25" : "text-[#C0B8A8]")}>Sudah ada</span>
-                        : <Plus size={14} className="text-[#A87C4F]" />
-                      }
-                    </button>
-                  );
-                })}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

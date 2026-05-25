@@ -11,9 +11,9 @@ type PaymentMethod = "qris" | "bank" | "gopay" | "ovo" | "dana";
 type PlanKey = "free" | "pro" | "enterprise";
 
 const PLAN_CONFIG: Record<PlanKey, { name: string; price: number; period: string }> = {
-  free:       { name: "Free",       price: 0,       period: "selamanya" },
-  pro:        { name: "Pro",        price: 150_000,  period: "bulan"     },
-  enterprise: { name: "Enterprise", price: 450_000,  period: "bulan"     },
+  free:       { name: "Free",    price: 0,       period: "selamanya" },
+  pro:        { name: "Starter", price: 49_000,  period: "bulan"     },
+  enterprise: { name: "Pro",     price: 99_000,  period: "bulan"     },
 };
 
 const PAYMENT_OPTIONS = [

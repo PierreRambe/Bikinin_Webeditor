@@ -36,8 +36,8 @@ export function FeatureStrip() {
 const STEPS = [
   {
     num: "01",
-    title: "Pilih Modul",
-    desc: "Pilih komponen website dari library kami. Navbar, hero, galeri, kontak — tinggal aktifkan sesuai kebutuhan.",
+    title: "Pilih Section",
+    desc: "Ketuk section yang kamu inginkan — Navbar, Hero, Galeri, Kontak. Workspace kosong jadi starting point yang bebas.",
   },
   {
     num: "02",
@@ -128,13 +128,13 @@ const PLANS = [
     name: "Free",
     price: 0,
     period: "selamanya",
-    desc: "Cocok untuk mencoba fitur dasar",
-    dragLimit: 10,
+    desc: "Mulai membangun website tanpa biaya apapun",
+    dragLimit: "Semua section",
     features: [
-      "10 fitur drag & drop",
-      "Navbar & Hero Section",
+      "Semua section & aset dasar gratis",
+      "Drag & drop builder lengkap",
       "Subdomain bikinin.id",
-      "SSL Gratis",
+      "SSL & hosting gratis",
       "1 halaman website",
     ],
     popular: false,
@@ -142,39 +142,39 @@ const PLANS = [
     href: "/payment?plan=free",
   },
   {
-    name: "Pro",
-    price: 150_000,
+    name: "Starter",
+    price: 49_000,
     period: "bulan",
-    desc: "Akses penuh 50 fitur drag & drop",
-    dragLimit: 50,
+    desc: "Untuk UMKM & profesional yang ingin tampil lebih",
+    dragLimit: "3 halaman",
     features: [
-      "50 fitur drag & drop",
-      "Semua modul website",
+      "Semua fitur Free",
       "Custom domain .id",
-      "Analytics Dashboard",
-      "Integrasi WhatsApp",
-      "Support Prioritas",
+      "3 halaman website",
+      "Analytics & statistik pengunjung",
+      "Integrasi WhatsApp & media sosial",
+      "Hapus branding Bikinin",
     ],
     popular: true,
-    cta: "Mulai Pro",
+    cta: "Mulai Starter",
     href: "/payment?plan=pro",
   },
   {
-    name: "Enterprise",
-    price: 450_000,
+    name: "Pro",
+    price: 99_000,
     period: "bulan",
-    desc: "Semua fitur tanpa batas untuk bisnis besar",
-    dragLimit: null,
+    desc: "Untuk bisnis yang butuh fitur lengkap tanpa batas",
+    dragLimit: "Tak terbatas",
     features: [
-      "Semua fitur Pro",
-      "Multi-halaman tak terbatas",
-      "E-commerce & toko online",
-      "Custom modul & desain",
-      "Dedicated account manager",
-      "SLA uptime 99.9%",
+      "Semua fitur Starter",
+      "Halaman & section tak terbatas",
+      "Toko online & e-commerce",
+      "Analytics lanjutan & konversi",
+      "Support prioritas 24/7",
+      "Custom branding & domain",
     ],
     popular: false,
-    cta: "Mulai Enterprise",
+    cta: "Mulai Pro",
     href: "/payment?plan=enterprise",
   },
 ];
@@ -265,7 +265,7 @@ export function PricingSection() {
                     ? "bg-white/15 text-white"
                     : "bg-[#A87C4F]/10 text-[#A87C4F] dark:bg-[#A87C4F]/15 dark:text-[#C9A47A]"
                 }`}>
-                  {plan.dragLimit === null ? "∞ fitur drag & drop" : `${plan.dragLimit} fitur drag & drop`}
+                  {plan.dragLimit}
                 </div>
               </div>
 
