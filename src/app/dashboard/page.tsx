@@ -308,9 +308,16 @@ function ModuleRow({
           <>
             <ModuleThumbnail moduleKey={module.key} dark={dark} />
             <span className={cn("flex-1 text-[12px] font-medium pointer-events-none truncate", dark ? "text-[#F0EDE8]" : "text-[#2A2520]")}>{module.label}</span>
-            <span className="flex-none w-[18px] h-[18px] rounded-full bg-[#A87C4F] flex items-center justify-center pointer-events-none shrink-0">
-              <Check size={10} className="text-white" />
-            </span>
+            <button
+              type="button"
+              onClick={e => { e.stopPropagation(); onToggle(); }}
+              className="flex-none w-[18px] h-[18px] rounded-full bg-[#A87C4F] hover:bg-red-400 flex items-center justify-center shrink-0 transition-colors group/check"
+              aria-label="Hapus section"
+              title="Hapus section"
+            >
+              <Check size={10} className="text-white group-hover/check:hidden" />
+              <X size={10} className="text-white hidden group-hover/check:block" />
+            </button>
           </>
         )}
       </div>
