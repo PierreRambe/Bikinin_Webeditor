@@ -1349,7 +1349,11 @@ export default function DashboardPage() {
   const [moduleDesigns, setModuleDesigns] = useState<Record<ModuleKey, number>>(
     { navbar: 1, hero: 1, gallery: 1, about: 1, contact: 1, footer: 1 }
   );
-  const progressRef = useRef<HTMLDivElement>(null);
+  const progressRef   = useRef<HTMLDivElement>(null);
+  const canvasDropRef = useRef<HTMLDivElement>(null);
+
+  const [touchDragAsset, setTouchDragAsset] = useState<{ label: string; icon: string; price: number } | null>(null);
+  const [touchDragPos,   setTouchDragPos]   = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const saved = localStorage.getItem("bikinin-dark") === "true";
@@ -1797,8 +1801,32 @@ export default function DashboardPage() {
                           setDraggedAsset({ id: crypto.randomUUID(), label: asset.label, icon: asset.icon, price: asset.price });
                         }}
                         onDragEnd={() => setDraggedAsset(null)}
+                        onPointerDown={(e) => {
+                          if (e.pointerType === "mouse") return;
+                          e.preventDefault();
+                          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+                          setTouchDragAsset({ label: asset.label, icon: asset.icon, price: asset.price });
+                          setTouchDragPos({ x: e.clientX, y: e.clientY });
+                        }}
+                        onPointerMove={(e) => {
+                          if (e.pointerType === "mouse") return;
+                          setTouchDragPos({ x: e.clientX, y: e.clientY });
+                        }}
+                        onPointerUp={(e) => {
+                          if (e.pointerType === "mouse" || !touchDragAsset) return;
+                          const canvas = canvasDropRef.current;
+                          if (canvas) {
+                            const rect = canvas.getBoundingClientRect();
+                            if (e.clientX >= rect.left && e.clientX <= rect.right &&
+                                e.clientY >= rect.top  && e.clientY <= rect.bottom) {
+                              addAsset(touchDragAsset);
+                            }
+                          }
+                          setTouchDragAsset(null);
+                        }}
+                        onPointerCancel={() => setTouchDragAsset(null)}
                         className={cn(
-                          "flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-all select-none cursor-pointer active:scale-[0.98]",
+                          "flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-all select-none cursor-pointer active:scale-[0.98] touch-none",
                           "md:cursor-grab md:active:cursor-grabbing",
                           dark
                             ? "border-white/6 bg-white/2 hover:border-[#A87C4F]/30 hover:bg-[#A87C4F]/6"
@@ -1962,6 +1990,7 @@ export default function DashboardPage() {
 
               {/* Rendered modules */}
               <div
+                ref={canvasDropRef}
                 className={cn(dark ? "bg-[#0E0C0A]" : "bg-[#F8F6F0]")}
                 onDragOver={e => e.preventDefault()}
                 onDrop={e => {
@@ -2060,19 +2089,18 @@ export default function DashboardPage() {
                 ))}
 
                 {/* Drop zone */}
-                {(modules.filter(m => m.active).length > 0 || droppedAssets.length > 0 || draggedModule !== null || draggedAsset !== null) && (
+                {(modules.filter(m => m.active).length > 0 || droppedAssets.length > 0 || draggedModule !== null || draggedAsset !== null || touchDragAsset !== null) && (
                   <div
                     className={cn(
                       "flex items-center justify-center py-4 border-2 border-dashed mx-4 my-3 rounded-xl text-[11px] transition-colors",
-                      draggedModule || draggedAsset
+                      draggedModule || draggedAsset || touchDragAsset
                         ? dark ? "border-[#A87C4F]/40 bg-[#A87C4F]/5 text-[#C9A47A]" : "border-[#A87C4F]/40 bg-[#FBF7F2] text-[#A87C4F]"
                         : dark ? "border-white/6 text-white/20" : "border-[#E0D9CC] text-[#C0B8A8]"
                     )}
                   >
-                    <span className="hidden md:inline">
-                      {draggedModule ? "Lepaskan di sini untuk menambahkan section" : "Seret aset dari panel kiri ke sini"}
+                    <span>
+                      {draggedModule ? "Lepaskan di sini untuk menambahkan section" : "Seret aset ke sini"}
                     </span>
-                    <span className="md:hidden">Buka panel → Aset untuk menambahkan</span>
                   </div>
                 )}
               </div>
@@ -2081,6 +2109,19 @@ export default function DashboardPage() {
         </main>
       </div>
 
+      {/* Touch drag ghost */}
+      {touchDragAsset && (
+        <div
+          className={cn(
+            "fixed z-[9999] pointer-events-none flex items-center gap-2 px-3 py-2 rounded-xl border shadow-2xl -translate-x-1/2 -translate-y-1/2 rotate-2",
+            dark ? "bg-[#1A1612] border-[#A87C4F]/50 text-[#F0EDE8]" : "bg-white border-[#A87C4F]/50 text-[#2A2520]"
+          )}
+          style={{ left: touchDragPos.x, top: touchDragPos.y }}
+        >
+          <span className="text-[14px] leading-none">{touchDragAsset.icon}</span>
+          <span className="text-[11px] font-medium">{touchDragAsset.label}</span>
+        </div>
+      )}
     </div>
   );
 }
