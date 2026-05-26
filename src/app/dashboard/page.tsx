@@ -117,6 +117,16 @@ const DEFAULT_CONTENT: Record<ModuleKey, Record<string, string>> = {
   footer:  { copyright: "© 2025 Toko Saya · Powered by Bikinin" },
 };
 
+/* ─── Design variants per module ── */
+const MODULE_DESIGN_VARIANTS: Record<ModuleKey, Array<{ id: number; name: string }>> = {
+  navbar:  [{ id: 1, name: "Klasik" }, { id: 2, name: "Tengah" }, { id: 3, name: "Minimal" }, { id: 4, name: "Solid" }],
+  hero:    [{ id: 1, name: "Standar" }, { id: 2, name: "Tengah" }, { id: 3, name: "Split" }, { id: 4, name: "Bold" }],
+  gallery: [{ id: 1, name: "Grid 4" }, { id: 2, name: "Grid 2" }, { id: 3, name: "Featured" }, { id: 4, name: "List" }],
+  about:   [{ id: 1, name: "Simpel" }, { id: 2, name: "Split" }, { id: 3, name: "Tengah" }, { id: 4, name: "Kartu" }],
+  contact: [{ id: 1, name: "Simpel" }, { id: 2, name: "Kartu" }, { id: 3, name: "Form" }, { id: 4, name: "CTA" }],
+  footer:  [{ id: 1, name: "Minimal" }, { id: 2, name: "Dua Kolom" }, { id: 3, name: "Lengkap" }],
+};
+
 /* ─── Template configurations ── */
 type TemplateData = {
   modules: Partial<Record<ModuleKey, boolean>>;
@@ -230,19 +240,19 @@ function EditableText({
 
 /* ─── Draggable module row ── */
 function ModuleRow({
-  module,
-  isSelected,
-  dark,
-  onSelect,
-  onToggle,
+  module, isSelected, dark, onSelect, onToggle, setDraggedModule, currentDesign, onDesignChange,
 }: {
   module: Module;
   isSelected: boolean;
   dark: boolean;
   onSelect: () => void;
   onToggle: () => void;
+  setDraggedModule: (key: ModuleKey | null) => void;
+  currentDesign: number;
+  onDesignChange: (variant: number) => void;
 }) {
   const controls = useDragControls();
+  const variants = MODULE_DESIGN_VARIANTS[module.key];
 
   return (
     <Reorder.Item
@@ -251,7 +261,7 @@ function ModuleRow({
       dragControls={controls}
       style={{ touchAction: "none" }}
       className={cn(
-        "module-item flex items-center gap-2 px-3 py-2.5 rounded-xl border cursor-pointer transition-all duration-150 select-none",
+        "module-item flex flex-col rounded-xl border transition-all duration-150 select-none overflow-hidden",
         module.active
           ? isSelected
             ? dark ? "border-[#A87C4F]/60 bg-[#A87C4F]/12" : "border-[#A87C4F]/60 bg-[#FBF7F2]"
@@ -260,56 +270,74 @@ function ModuleRow({
             ? "border-white/10 border-dashed hover:border-[#A87C4F]/35 hover:bg-[#A87C4F]/5"
             : "border-[#DDD8CC] border-dashed hover:border-[#A87C4F]/45 hover:bg-[#FBF7F2]"
       )}
-      whileDrag={{
-        scale: 1.02,
-        boxShadow: dark
-          ? "0 8px 32px rgba(0,0,0,0.5)"
-          : "0 8px 32px rgba(0,0,0,0.12)",
-        zIndex: 50,
-      }}
-      onClick={module.active ? onSelect : onToggle}
+      whileDrag={{ scale: 1.02, boxShadow: dark ? "0 8px 32px rgba(0,0,0,0.5)" : "0 8px 32px rgba(0,0,0,0.12)", zIndex: 50 }}
     >
-      {/* Drag handle */}
-      <button
-        type="button"
-        style={{ touchAction: "none" }}
-        className={cn(
-          "flex-none cursor-grab active:cursor-grabbing p-0.5 rounded transition-colors",
-          dark
-            ? "text-white/20 hover:text-white/50"
-            : "text-[#C0B8A8] hover:text-[#8A8070]"
-        )}
-        onPointerDown={(e) => {
-          e.stopPropagation();
-          controls.start(e);
-        }}
-        aria-label="Drag to reorder"
+      {/* Main row */}
+      <div
+        className="flex items-center gap-2 px-3 py-2.5 cursor-pointer"
+        onClick={module.active ? onSelect : onToggle}
       >
-        <GripVertical size={14} />
-      </button>
-
-      <span className="text-[14px] w-5 text-center text-[#A87C4F] pointer-events-none">
-        {module.icon}
-      </span>
-
-      <span
-        className={cn(
-          "flex-1 text-[12px] font-medium pointer-events-none",
-          module.active
-            ? dark ? "text-[#F0EDE8]" : "text-[#2A2520]"
-            : dark ? "text-white/40" : "text-[#8A8070]"
+        {module.active ? (
+          <button
+            type="button"
+            style={{ touchAction: "none" }}
+            className={cn("flex-none cursor-grab active:cursor-grabbing p-0.5 rounded transition-colors", dark ? "text-white/20 hover:text-white/50" : "text-[#C0B8A8] hover:text-[#8A8070]")}
+            onPointerDown={(e) => { e.stopPropagation(); controls.start(e); }}
+            aria-label="Drag to reorder"
+          >
+            <GripVertical size={14} />
+          </button>
+        ) : (
+          <div className={cn("flex-none p-0.5", dark ? "text-white/12" : "text-[#DDD8CC]")}>
+            <GripVertical size={14} />
+          </div>
         )}
-      >
-        {module.label}
-      </span>
 
-      {/* Active checkmark or add plus */}
-      {module.active ? (
-        <span className="flex-none w-[18px] h-[18px] rounded-full bg-[#A87C4F] flex items-center justify-center pointer-events-none">
-          <Check size={10} className="text-white" />
-        </span>
-      ) : (
-        <Plus size={13} className={cn("flex-none pointer-events-none", dark ? "text-white/25" : "text-[#C0B8A8]")} />
+        {!module.active ? (
+          <div
+            className="flex items-center gap-2 flex-1 min-w-0 md:cursor-grab"
+            draggable
+            onDragStart={(e) => { e.dataTransfer.setData("text/plain", `module:${module.key}`); setDraggedModule(module.key); }}
+            onDragEnd={() => setDraggedModule(null)}
+          >
+            <ModuleThumbnail moduleKey={module.key} dark={dark} />
+            <span className={cn("flex-1 text-[12px] font-medium pointer-events-none truncate", dark ? "text-white/40" : "text-[#8A8070]")}>{module.label}</span>
+            <Plus size={13} className={cn("flex-none pointer-events-none shrink-0", dark ? "text-white/25" : "text-[#C0B8A8]")} />
+          </div>
+        ) : (
+          <>
+            <ModuleThumbnail moduleKey={module.key} dark={dark} />
+            <span className={cn("flex-1 text-[12px] font-medium pointer-events-none truncate", dark ? "text-[#F0EDE8]" : "text-[#2A2520]")}>{module.label}</span>
+            <span className="flex-none w-[18px] h-[18px] rounded-full bg-[#A87C4F] flex items-center justify-center pointer-events-none shrink-0">
+              <Check size={10} className="text-white" />
+            </span>
+          </>
+        )}
+      </div>
+
+      {/* Design variant picker — only when active */}
+      {module.active && (
+        <div className={cn("px-3 pb-2.5 pt-0", dark ? "" : "")}>
+          <p className={cn("text-[8px] font-bold tracking-[0.12em] uppercase mb-1.5", dark ? "text-white/30" : "text-[#B0A898]")}>
+            Desain
+          </p>
+          <div className="flex gap-1.5 flex-wrap">
+            {variants.map(v => (
+              <div key={v.id} className="flex flex-col items-center gap-0.5">
+                <DesignVariantThumb
+                  moduleKey={module.key}
+                  variant={v.id}
+                  selected={currentDesign === v.id}
+                  dark={dark}
+                  onClick={() => onDesignChange(v.id)}
+                />
+                <span className={cn("text-[7px] font-medium", currentDesign === v.id ? "text-[#A87C4F]" : dark ? "text-white/25" : "text-[#B0A898]")}>
+                  {v.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </Reorder.Item>
   );
@@ -317,7 +345,7 @@ function ModuleRow({
 
 /* ─── Module preview blocks ── */
 function ModulePreview({
-  moduleKey, isSelected, dark, label, content, onContentChange,
+  moduleKey, isSelected, dark, label, content, onContentChange, designVariant = 1,
 }: {
   moduleKey: ModuleKey;
   isSelected: boolean;
@@ -325,6 +353,7 @@ function ModulePreview({
   label: string;
   content: Record<string, string>;
   onContentChange: (field: string, value: string) => void;
+  designVariant?: number;
 }) {
   const ring = isSelected ? "ring-1 ring-[#A87C4F] ring-inset" : "";
   const label_tag = isSelected && (
@@ -333,136 +362,676 @@ function ModulePreview({
     </span>
   );
 
-  if (moduleKey === "navbar") return (
-    <div className={cn("flex items-center justify-between px-5 h-10 border-b relative", dark ? "bg-[#131110] border-white/6" : "bg-white border-[#EAE6D8]", ring)}>
-      {label_tag}
-      <EditableText
-        value={content.brandName ?? "Toko Saya"}
-        field="brandName"
-        isEditable={isSelected}
-        onSave={onContentChange}
-        className="text-[13px] font-serif-display text-[#A87C4F]"
-      />
-      <div className="flex gap-4">
-        {["Produk","Tentang","Kontak"].map(l => (
-          <span key={l} className={cn("text-[10px]", dark ? "text-white/30" : "text-[#8A8070]")}>{l}</span>
+  /* ── NAVBAR ── */
+  if (moduleKey === "navbar") {
+    if (designVariant === 2) return (
+      <div className={cn("flex flex-col items-center border-b relative pt-2 pb-1", dark ? "bg-[#131110] border-white/6" : "bg-white border-[#EAE6D8]", ring)}>
+        {label_tag}
+        <EditableText value={content.brandName ?? "Toko Saya"} field="brandName" isEditable={isSelected} onSave={onContentChange} className="text-[13px] font-serif-display text-[#A87C4F] mb-1" />
+        <div className="flex gap-5">
+          {["Produk","Tentang","Kontak"].map(l => <span key={l} className={cn("text-[10px]", dark ? "text-white/30" : "text-[#8A8070]")}>{l}</span>)}
+        </div>
+      </div>
+    );
+    if (designVariant === 3) return (
+      <div className={cn("flex items-center justify-between px-5 h-10 border-b relative", dark ? "bg-[#131110] border-white/6" : "bg-white border-[#EAE6D8]", ring)}>
+        {label_tag}
+        <EditableText value={content.brandName ?? "Toko Saya"} field="brandName" isEditable={isSelected} onSave={onContentChange} className="text-[13px] font-serif-display text-[#A87C4F]" />
+        <div className={cn("flex items-center gap-1", dark ? "text-white/40" : "text-[#8A8070]")}>
+          <span className="text-[18px] leading-none">≡</span>
+        </div>
+      </div>
+    );
+    if (designVariant === 4) return (
+      <div className={cn("flex items-center justify-between px-5 h-10 relative", "bg-[#A87C4F]", ring)}>
+        {label_tag}
+        <EditableText value={content.brandName ?? "Toko Saya"} field="brandName" isEditable={isSelected} onSave={onContentChange} className="text-[13px] font-serif-display text-white" />
+        <div className="flex gap-4">
+          {["Produk","Tentang","Kontak"].map(l => <span key={l} className="text-[10px] text-white/70">{l}</span>)}
+        </div>
+      </div>
+    );
+    return (
+      <div className={cn("flex items-center justify-between px-5 h-10 border-b relative", dark ? "bg-[#131110] border-white/6" : "bg-white border-[#EAE6D8]", ring)}>
+        {label_tag}
+        <EditableText value={content.brandName ?? "Toko Saya"} field="brandName" isEditable={isSelected} onSave={onContentChange} className="text-[13px] font-serif-display text-[#A87C4F]" />
+        <div className="flex gap-4">
+          {["Produk","Tentang","Kontak"].map(l => <span key={l} className={cn("text-[10px]", dark ? "text-white/30" : "text-[#8A8070]")}>{l}</span>)}
+        </div>
+      </div>
+    );
+  }
+
+  /* ── HERO ── */
+  if (moduleKey === "hero") {
+    if (designVariant === 2) return (
+      <div className={cn("px-5 py-8 relative text-center", dark ? "bg-[#1A1612]" : "bg-[#F8F4EC]", ring)}>
+        {label_tag}
+        <EditableText value={content.title ?? "Produk Terbaik Untuk Anda"} field="title" isEditable={isSelected} onSave={onContentChange} className={cn("text-[18px] font-serif-display mb-2 block", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")} />
+        <EditableText value={content.subtitle ?? "Kualitas premium, harga terjangkau"} field="subtitle" isEditable={isSelected} onSave={onContentChange} className={cn("text-[10px] mb-4 block", dark ? "text-white/60" : "text-[#8A8070]")} />
+        <div className="flex justify-center">
+          <span className={cn("inline-flex items-center px-6 py-2 rounded-full text-[10px] font-semibold", dark ? "bg-[#C9A47A] text-white" : "bg-[#A87C4F] text-white")}>
+            <EditableText value={content.btnText ?? "Lihat Produk"} field="btnText" isEditable={isSelected} onSave={onContentChange} />
+          </span>
+        </div>
+      </div>
+    );
+    if (designVariant === 3) return (
+      <div className={cn("flex relative min-h-[90px]", ring)}>
+        {label_tag}
+        <div className={cn("flex-1 px-5 py-6 flex flex-col justify-center", dark ? "bg-[#1A1612]" : "bg-[#F8F4EC]")}>
+          <EditableText value={content.title ?? "Produk Terbaik Untuk Anda"} field="title" isEditable={isSelected} onSave={onContentChange} className={cn("text-[14px] font-serif-display mb-1 block", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")} />
+          <EditableText value={content.subtitle ?? "Kualitas premium, harga terjangkau"} field="subtitle" isEditable={isSelected} onSave={onContentChange} className={cn("text-[9px] mb-3 block", dark ? "text-white/55" : "text-[#8A8070]")} />
+          <span className={cn("inline-flex items-center px-3 py-1 rounded-full text-[9px] font-semibold self-start", dark ? "bg-[#C9A47A] text-white" : "bg-[#A87C4F] text-white")}>
+            <EditableText value={content.btnText ?? "Lihat Produk"} field="btnText" isEditable={isSelected} onSave={onContentChange} />
+          </span>
+        </div>
+        <div className={cn("w-[38%] flex items-center justify-center", dark ? "bg-[#231F1A]" : "bg-[#E8DFD0]")}>
+          <span className={cn("text-[28px]", dark ? "opacity-20" : "opacity-30")}>🖼</span>
+        </div>
+      </div>
+    );
+    if (designVariant === 4) return (
+      <div className={cn("px-5 py-8 relative", dark ? "bg-[#0A0907]" : "bg-[#1C1C1C]", ring)}>
+        {label_tag}
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-4 h-0.5 bg-[#A87C4F]" />
+          <span className="text-[9px] font-bold tracking-widest text-[#A87C4F] uppercase">Premium</span>
+        </div>
+        <EditableText value={content.title ?? "Produk Terbaik Untuk Anda"} field="title" isEditable={isSelected} onSave={onContentChange} className="text-[18px] font-serif-display mb-2 block text-white" />
+        <EditableText value={content.subtitle ?? "Kualitas premium, harga terjangkau"} field="subtitle" isEditable={isSelected} onSave={onContentChange} className="text-[10px] mb-4 block text-white/50" />
+        <span className="inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-semibold bg-[#A87C4F] text-white">
+          <EditableText value={content.btnText ?? "Lihat Produk"} field="btnText" isEditable={isSelected} onSave={onContentChange} />
+        </span>
+      </div>
+    );
+    return (
+      <div className={cn("px-5 py-7 relative", dark ? "bg-[#1A1612]" : "bg-[#F8F4EC]", ring)}>
+        {label_tag}
+        <EditableText value={content.title ?? "Produk Terbaik Untuk Anda"} field="title" isEditable={isSelected} onSave={onContentChange} className={cn("text-[16px] font-serif-display mb-1 block", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")} />
+        <EditableText value={content.subtitle ?? "Kualitas premium, harga terjangkau"} field="subtitle" isEditable={isSelected} onSave={onContentChange} className={cn("text-[10px] mb-4 block", dark ? "text-white/60" : "text-[#8A8070]")} />
+        <span className={cn("inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-semibold", dark ? "bg-[#C9A47A] text-white" : "bg-[#A87C4F] text-white")}>
+          <EditableText value={content.btnText ?? "Lihat Produk"} field="btnText" isEditable={isSelected} onSave={onContentChange} />
+        </span>
+      </div>
+    );
+  }
+
+  /* ── GALLERY ── */
+  if (moduleKey === "gallery") {
+    const title = <EditableText value={content.sectionTitle ?? "Produk Kami"} field="sectionTitle" isEditable={isSelected} onSave={onContentChange} className={cn("text-[10px] font-semibold uppercase tracking-wider mb-3 block", dark ? "text-white/55" : "text-[#8A8070]")} />;
+    if (designVariant === 2) return (
+      <div className={cn("p-4 relative", ring)}>
+        {label_tag}
+        {title}
+        <div className="grid grid-cols-2 gap-3">
+          {[1,2].map(i => (
+            <div key={i} className={cn("rounded-xl overflow-hidden shadow-sm", dark ? "bg-[#1A1612]" : "bg-white")}>
+              <div className={cn("h-20", dark ? "bg-[#231F1A]" : "bg-[#F0EDE6]")} />
+              <div className="p-2">
+                <p className={cn("text-[10px] font-semibold", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>Produk {i}</p>
+                <p className="text-[10px] font-bold text-[#A87C4F]">Rp {i * 250}.000</p>
+                <button type="button" className="mt-1.5 w-full py-1 rounded-lg bg-[#A87C4F]/15 text-[#A87C4F] text-[9px] font-semibold cursor-default">Beli</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    if (designVariant === 3) return (
+      <div className={cn("p-4 relative", ring)}>
+        {label_tag}
+        {title}
+        <div className="grid grid-cols-3 gap-2">
+          <div className={cn("col-span-2 row-span-2 rounded-xl overflow-hidden", dark ? "bg-[#231F1A]" : "bg-[#F0EDE6]")}>
+            <div className="h-28 flex items-end p-2">
+              <div>
+                <p className={cn("text-[9px] font-semibold", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>Produk Utama</p>
+                <p className="text-[9px] font-bold text-[#A87C4F]">Rp 450.000</p>
+              </div>
+            </div>
+          </div>
+          {[1,2,3].map(i => (
+            <div key={i} className={cn("rounded-xl overflow-hidden", dark ? "bg-[#1A1612]" : "bg-white")}>
+              <div className={cn("h-12", dark ? "bg-[#231F1A]" : "bg-[#F0EDE6]")} />
+              <p className={cn("text-[7px] font-bold text-[#A87C4F] px-1.5 py-1", )}>Rp {i * 120}.000</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    if (designVariant === 4) return (
+      <div className={cn("p-4 relative", ring)}>
+        {label_tag}
+        {title}
+        <div className="flex flex-col gap-2">
+          {[1,2,3].map(i => (
+            <div key={i} className={cn("flex items-center gap-3 rounded-xl border p-2", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8] bg-white")}>
+              <div className={cn("w-10 h-10 rounded-lg flex-none", dark ? "bg-[#231F1A]" : "bg-[#F0EDE6]")} />
+              <div className="flex-1">
+                <p className={cn("text-[10px] font-semibold", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>Produk {i}</p>
+                <p className="text-[9px] font-bold text-[#A87C4F]">Rp {i * 175}.000</p>
+              </div>
+              <button type="button" className="px-2 py-1 rounded-lg bg-[#A87C4F] text-white text-[8px] font-bold cursor-default">Beli</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    return (
+      <div className={cn("p-4 relative", ring)}>
+        {label_tag}
+        {title}
+        <div className="grid grid-cols-4 gap-2">
+          {[1,2,3,4].map(i => (
+            <div key={i} className={cn("rounded-lg overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.06)]", dark ? "bg-[#1A1612]" : "bg-white")}>
+              <div className={cn("h-11", dark ? "bg-[#231F1A]" : "bg-[#F0EDE6]")} />
+              <div className="p-1.5">
+                <p className={cn("text-[9px] font-medium", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>Produk {i}</p>
+                <p className="text-[9px] font-bold text-[#A87C4F]">Rp {i * 175}.000</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  /* ── ABOUT ── */
+  if (moduleKey === "about") {
+    if (designVariant === 2) return (
+      <div className={cn("px-5 py-5 border-t relative", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8]", ring)}>
+        {label_tag}
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <EditableText value={content.title ?? "Tentang Kami"} field="title" isEditable={isSelected} onSave={onContentChange} className={cn("text-[13px] font-serif-display mb-1.5 block", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")} />
+            <EditableText value={content.body ?? "Kami adalah UMKM yang berkomitmen memberikan produk terbaik."} field="body" isEditable={isSelected} onSave={onContentChange} multiline className={cn("text-[9px] leading-relaxed block", dark ? "text-white/55" : "text-[#8A8070]")} />
+          </div>
+          <div className="flex flex-col gap-2 flex-none">
+            {[{icon:"⚡",t:"Cepat"},{icon:"🎨",t:"Indah"},{icon:"🔒",t:"Aman"}].map(f => (
+              <div key={f.t} className={cn("flex items-center gap-1.5 px-2 py-1.5 rounded-lg", dark ? "bg-white/5" : "bg-[#F8F4EC]")}>
+                <span className="text-[12px]">{f.icon}</span>
+                <span className={cn("text-[9px] font-medium", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>{f.t}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+    if (designVariant === 3) return (
+      <div className={cn("px-5 py-6 border-t relative text-center", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8]", ring)}>
+        {label_tag}
+        <EditableText value={content.title ?? "Tentang Kami"} field="title" isEditable={isSelected} onSave={onContentChange} className={cn("text-[15px] font-serif-display mb-1.5 block", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")} />
+        <EditableText value={content.body ?? "Kami adalah UMKM yang berkomitmen memberikan produk terbaik dengan pelayanan prima."} field="body" isEditable={isSelected} onSave={onContentChange} multiline className={cn("text-[9px] leading-relaxed block mb-4", dark ? "text-white/55" : "text-[#8A8070]")} />
+        <div className="flex justify-center gap-6">
+          {[{n:"200+",l:"Produk"},{n:"1k+",l:"Pelanggan"},{n:"98%",l:"Puas"}].map(s => (
+            <div key={s.l}>
+              <p className={cn("text-[16px] font-bold", dark ? "text-[#C9A47A]" : "text-[#A87C4F]")}>{s.n}</p>
+              <p className={cn("text-[8px]", dark ? "text-white/50" : "text-[#8A8070]")}>{s.l}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    if (designVariant === 4) return (
+      <div className={cn("py-5 border-t relative flex gap-0", dark ? "border-white/6" : "border-[#EAE6D8]", ring)}>
+        {label_tag}
+        <div className="w-1 bg-[#A87C4F] rounded-full flex-none mx-4" />
+        <div className={cn("flex-1 pr-5", dark ? "bg-[#1A1612]" : "")}>
+          <EditableText value={content.title ?? "Tentang Kami"} field="title" isEditable={isSelected} onSave={onContentChange} className={cn("text-[13px] font-serif-display mb-1.5 block", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")} />
+          <EditableText value={content.body ?? "Kami adalah UMKM yang berkomitmen memberikan produk terbaik dengan pelayanan prima."} field="body" isEditable={isSelected} onSave={onContentChange} multiline className={cn("text-[9px] leading-relaxed block", dark ? "text-white/55" : "text-[#8A8070]")} />
+        </div>
+      </div>
+    );
+    return (
+      <div className={cn("px-5 py-5 border-t relative", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8]", ring)}>
+        {label_tag}
+        <EditableText value={content.title ?? "Tentang Kami"} field="title" isEditable={isSelected} onSave={onContentChange} className={cn("text-[13px] font-serif-display mb-1.5 block", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")} />
+        <EditableText value={content.body ?? "Kami adalah UMKM yang berkomitmen memberikan produk terbaik dengan pelayanan prima."} field="body" isEditable={isSelected} onSave={onContentChange} multiline className={cn("text-[10px] leading-relaxed block", dark ? "text-white/65" : "text-[#8A8070]")} />
+      </div>
+    );
+  }
+
+  /* ── CONTACT ── */
+  if (moduleKey === "contact") {
+    if (designVariant === 2) return (
+      <div className={cn("px-5 py-4 border-t relative", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8]", ring)}>
+        {label_tag}
+        <p className={cn("text-[10px] font-semibold uppercase tracking-wider mb-3", dark ? "text-white/55" : "text-[#8A8070]")}>Hubungi Kami</p>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { icon: "✉", label: "Email", val: content.email ?? "hello@tokosaya.id", field: "email" },
+            { icon: "📱", label: "Telepon", val: content.phone ?? "+62 812 3456 7890", field: "phone" },
+          ].map(c => (
+            <div key={c.field} className={cn("rounded-xl border p-3 flex flex-col gap-1", dark ? "border-white/8 bg-[#0E0C0A]" : "border-[#E8DFD0] bg-[#FBF7F2]")}>
+              <span className="text-[14px]">{c.icon}</span>
+              <p className={cn("text-[8px] font-bold uppercase tracking-wide", dark ? "text-white/40" : "text-[#8A8070]")}>{c.label}</p>
+              <EditableText value={c.val} field={c.field} isEditable={isSelected} onSave={onContentChange} className={cn("text-[9px] font-medium", dark ? "text-[#F0EDE8]" : "text-[#2A2520]")} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    if (designVariant === 3) return (
+      <div className={cn("px-5 py-4 border-t relative", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8]", ring)}>
+        {label_tag}
+        <p className={cn("text-[11px] font-serif-display mb-3", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>Kirim Pesan</p>
+        <div className="space-y-2">
+          {["Nama Lengkap", "Email Anda"].map(ph => (
+            <div key={ph} className={cn("h-7 rounded-lg border px-3 flex items-center", dark ? "border-white/8 bg-[#0E0C0A]" : "border-[#E8DFD0] bg-white")}>
+              <p className={cn("text-[9px]", dark ? "text-white/20" : "text-[#C0B8A8]")}>{ph}</p>
+            </div>
+          ))}
+          <button type="button" className="w-full py-1.5 rounded-lg bg-[#A87C4F] text-white text-[10px] font-semibold cursor-default">Kirim →</button>
+        </div>
+      </div>
+    );
+    if (designVariant === 4) return (
+      <div className={cn("px-5 py-6 border-t relative text-center", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8]", ring)}>
+        {label_tag}
+        <p className={cn("text-[14px] font-serif-display mb-1", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>Ada yang bisa kami bantu?</p>
+        <p className={cn("text-[9px] mb-4", dark ? "text-white/45" : "text-[#8A8070]")}>Tim kami siap membantu Anda</p>
+        <div className="flex justify-center gap-3">
+          <button type="button" className="px-4 py-2 rounded-full bg-[#A87C4F] text-white text-[10px] font-semibold cursor-default">✉ Email Kami</button>
+          <button type="button" className={cn("px-4 py-2 rounded-full text-[10px] font-semibold border cursor-default", dark ? "border-white/15 text-white/60" : "border-[#DDD8CC] text-[#5A5248]")}>📱 WhatsApp</button>
+        </div>
+      </div>
+    );
+    return (
+      <div className={cn("px-5 py-4 border-t relative", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8]", ring)}>
+        {label_tag}
+        <p className={cn("text-[10px] font-semibold uppercase tracking-wider mb-2", dark ? "text-white/55" : "text-[#8A8070]")}>Hubungi Kami</p>
+        <div className="flex flex-wrap gap-4">
+          <span className={cn("text-[10px] flex items-center gap-1", dark ? "text-white/75" : "text-[#5A5248]")}>
+            ✉{" "}
+            <EditableText value={content.email ?? "hello@tokosaya.id"} field="email" isEditable={isSelected} onSave={onContentChange} className={cn("text-[10px]", dark ? "text-white/75" : "text-[#5A5248]")} />
+          </span>
+          <span className={cn("text-[10px] flex items-center gap-1", dark ? "text-white/75" : "text-[#5A5248]")}>
+            📱{" "}
+            <EditableText value={content.phone ?? "+62 812 3456 7890"} field="phone" isEditable={isSelected} onSave={onContentChange} className={cn("text-[10px]", dark ? "text-white/75" : "text-[#5A5248]")} />
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── FOOTER ── */
+  if (moduleKey === "footer") {
+    if (designVariant === 2) return (
+      <div className={cn("px-5 py-4 border-t relative", dark ? "border-white/6 bg-[#0A0907]" : "border-[#EAE6D8] bg-[#1C1C1C]", ring)}>
+        {label_tag}
+        <div className="flex items-start justify-between mb-3">
+          <span className="text-[11px] font-serif-display text-[#A87C4F]">{content.brandName ?? "Toko Saya"}</span>
+          <div className="flex gap-3">
+            {["Produk","Tentang","Kontak"].map(l => <span key={l} className="text-[8px] text-white/30">{l}</span>)}
+          </div>
+        </div>
+        <div className={cn("h-px mb-2", dark ? "bg-white/6" : "bg-white/10")} />
+        <EditableText value={content.copyright ?? "© 2025 Toko Saya · Powered by Bikinin"} field="copyright" isEditable={isSelected} onSave={onContentChange} className="text-[9px] text-white/25" />
+      </div>
+    );
+    if (designVariant === 3) return (
+      <div className={cn("px-5 py-4 border-t relative", dark ? "border-white/6 bg-[#0A0907]" : "border-[#EAE6D8] bg-[#1C1C1C]", ring)}>
+        {label_tag}
+        <div className="grid grid-cols-3 gap-4 mb-3">
+          <div>
+            <p className="text-[10px] font-serif-display text-[#A87C4F] mb-1">{content.brandName ?? "Toko Saya"}</p>
+            <p className="text-[8px] text-white/30 leading-relaxed">Produk berkualitas untuk semua.</p>
+          </div>
+          <div>
+            <p className="text-[8px] font-bold uppercase tracking-wider text-white/40 mb-1.5">Menu</p>
+            {["Produk","Tentang","Kontak"].map(l => <p key={l} className="text-[8px] text-white/25">{l}</p>)}
+          </div>
+          <div>
+            <p className="text-[8px] font-bold uppercase tracking-wider text-white/40 mb-1.5">Sosial</p>
+            {["Instagram","TikTok","WhatsApp"].map(l => <p key={l} className="text-[8px] text-white/25">{l}</p>)}
+          </div>
+        </div>
+        <div className={cn("h-px mb-2", dark ? "bg-white/6" : "bg-white/10")} />
+        <EditableText value={content.copyright ?? "© 2025 Toko Saya · Powered by Bikinin"} field="copyright" isEditable={isSelected} onSave={onContentChange} className="text-[8px] text-white/20" />
+      </div>
+    );
+    return (
+      <div className={cn("px-5 py-3.5 border-t relative", dark ? "border-white/6 bg-[#0A0907]" : "border-[#EAE6D8] bg-[#1C1C1C]", ring)}>
+        {label_tag}
+        <EditableText value={content.copyright ?? "© 2025 Toko Saya · Powered by Bikinin"} field="copyright" isEditable={isSelected} onSave={onContentChange} className="text-[10px] text-white/30" />
+      </div>
+    );
+  }
+
+  return null;
+}
+
+/* ─── Design variant tiny thumbnails (sidebar picker) ── */
+function DesignVariantThumb({ moduleKey, variant, selected, dark, onClick }: {
+  moduleKey: ModuleKey; variant: number; selected: boolean; dark: boolean; onClick: () => void;
+}) {
+  const base = cn(
+    "w-[52px] h-[38px] rounded-lg border-2 overflow-hidden cursor-pointer transition-all shrink-0 flex flex-col",
+    selected
+      ? "border-[#A87C4F]"
+      : dark ? "border-white/10 hover:border-white/25" : "border-[#DDD8CC] hover:border-[#A87C4F]/40"
+  );
+  const bg  = dark ? "bg-[#0E0C0A]" : "bg-white";
+  const bg2 = dark ? "bg-[#1A1612]" : "bg-[#F8F4EC]";
+  const ln  = dark ? "bg-white/20" : "bg-[#C0B8A8]";
+  const ln2 = dark ? "bg-white/10" : "bg-[#DDD8CC]";
+  const acc = "bg-[#A87C4F]";
+
+  /* NAVBAR */
+  if (moduleKey === "navbar") {
+    if (variant === 2) return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="flex flex-col items-center justify-center h-full gap-1 px-1">
+          <div className={cn("w-8 h-1 rounded-sm", acc)} style={{opacity:.5}} />
+          <div className="flex gap-1">{[0,1,2].map(i=><div key={i} className={cn("w-2 h-0.5 rounded-sm",ln2)}/>)}</div>
+        </div>
+      </div>
+    );
+    if (variant === 3) return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="flex items-center justify-between h-full px-1.5">
+          <div className={cn("w-5 h-1 rounded-sm", acc)} style={{opacity:.5}} />
+          <div className="flex flex-col gap-0.5">{[0,1,2].map(i=><div key={i} className={cn("w-2.5 h-0.5 rounded-sm",ln2)}/>)}</div>
+        </div>
+      </div>
+    );
+    if (variant === 4) return (
+      <div className={cn(base,"border-[#A87C4F]/40","bg-[#A87C4F]")} onClick={onClick}>
+        <div className="flex items-center justify-between h-full px-1.5">
+          <div className="w-5 h-1 rounded-sm bg-white/70" />
+          <div className="flex gap-1">{[0,1,2].map(i=><div key={i} className="w-1.5 h-0.5 rounded-sm bg-white/40"/>)}</div>
+        </div>
+      </div>
+    );
+    return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="flex items-center justify-between h-full px-1.5">
+          <div className={cn("w-5 h-1 rounded-sm", acc)} style={{opacity:.5}} />
+          <div className="flex gap-1">{[0,1,2].map(i=><div key={i} className={cn("w-1.5 h-0.5 rounded-sm",ln2)}/>)}</div>
+        </div>
+      </div>
+    );
+  }
+
+  /* HERO */
+  if (moduleKey === "hero") {
+    if (variant === 2) return (
+      <div className={cn(base, bg2)} onClick={onClick}>
+        <div className="flex flex-col items-center justify-center h-full gap-0.5 px-1">
+          <div className={cn("w-8 h-1 rounded-sm", ln)} />
+          <div className={cn("w-5 h-0.5 rounded-sm", ln2)} />
+          <div className={cn("w-4 h-1 rounded-full mt-0.5", acc)} style={{opacity:.65}} />
+        </div>
+      </div>
+    );
+    if (variant === 3) return (
+      <div className={cn(base,"overflow-hidden flex-row")} onClick={onClick}>
+        <div className={cn("flex-1 flex flex-col justify-center px-1 gap-0.5", bg2)}>
+          <div className={cn("w-5 h-1 rounded-sm", ln)} />
+          <div className={cn("w-3 h-0.5 rounded-sm", ln2)} />
+          <div className={cn("w-3 h-1 rounded-full mt-0.5", acc)} style={{opacity:.6}} />
+        </div>
+        <div className={cn("w-[38%]", dark ? "bg-[#231F1A]" : "bg-[#E8DFD0]")} />
+      </div>
+    );
+    if (variant === 4) return (
+      <div className={cn(base, dark ? "bg-[#0A0907]" : "bg-[#1C1C1C]")} onClick={onClick}>
+        <div className="flex flex-col justify-center h-full px-1.5 gap-0.5">
+          <div className="w-7 h-1 rounded-sm bg-white/50" />
+          <div className="w-5 h-0.5 rounded-sm bg-white/20" />
+          <div className={cn("w-4 h-1 rounded-full mt-0.5", acc)} style={{opacity:.8}} />
+        </div>
+      </div>
+    );
+    return (
+      <div className={cn(base, bg2)} onClick={onClick}>
+        <div className="flex flex-col justify-center h-full px-1.5 gap-0.5">
+          <div className={cn("w-7 h-1 rounded-sm", ln)} />
+          <div className={cn("w-5 h-0.5 rounded-sm", ln2)} />
+          <div className={cn("w-4 h-1 rounded-full mt-0.5", acc)} style={{opacity:.65}} />
+        </div>
+      </div>
+    );
+  }
+
+  /* GALLERY */
+  if (moduleKey === "gallery") {
+    if (variant === 2) return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="p-1 grid grid-cols-2 gap-0.5 h-full">
+          {[0,1].map(i=><div key={i} className={cn("rounded-sm",dark?"bg-[#231F1A]":"bg-[#F0EDE6]")}/>)}
+        </div>
+      </div>
+    );
+    if (variant === 3) return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="p-1 grid grid-cols-3 gap-0.5 h-full">
+          <div className={cn("col-span-2 row-span-2 rounded-sm",dark?"bg-[#231F1A]":"bg-[#F0EDE6]")} />
+          {[0,1,2].map(i=><div key={i} className={cn("rounded-sm",dark?"bg-[#1A1612]":"bg-[#E8DFD0]")}/>)}
+        </div>
+      </div>
+    );
+    if (variant === 4) return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="p-1 flex flex-col gap-0.5 h-full justify-around">
+          {[0,1,2].map(i=>(
+            <div key={i} className="flex items-center gap-0.5">
+              <div className={cn("w-3 h-3 rounded-sm flex-none",dark?"bg-[#231F1A]":"bg-[#F0EDE6]")}/>
+              <div className="flex-1 flex flex-col gap-0.5">
+                <div className={cn("h-0.5 rounded-sm w-full",ln2)}/>
+                <div className={cn("h-0.5 rounded-sm w-2/3",ln2)}/>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="p-1 grid grid-cols-4 gap-0.5 h-full">
+          {[0,1,2,3].map(i=><div key={i} className={cn("rounded-sm",dark?"bg-[#231F1A]":"bg-[#F0EDE6]")}/>)}
+        </div>
+      </div>
+    );
+  }
+
+  /* ABOUT */
+  if (moduleKey === "about") {
+    if (variant === 2) return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="flex gap-1 h-full p-1.5">
+          <div className="flex-1 flex flex-col justify-center gap-0.5">
+            <div className={cn("h-1 rounded-sm w-5",ln)}/>
+            <div className={cn("h-0.5 rounded-sm w-full",ln2)}/>
+            <div className={cn("h-0.5 rounded-sm w-4/5",ln2)}/>
+          </div>
+          <div className="flex flex-col gap-0.5 justify-center">
+            {[0,1,2].map(i=><div key={i} className={cn("w-4 h-2 rounded-sm",dark?"bg-white/8":"bg-[#F0EDE6]")}/>)}
+          </div>
+        </div>
+      </div>
+    );
+    if (variant === 3) return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="flex flex-col items-center justify-center h-full gap-0.5 px-1">
+          <div className={cn("h-1 rounded-sm w-6",ln)}/>
+          <div className={cn("h-0.5 rounded-sm w-full",ln2)}/>
+          <div className="flex gap-1 mt-0.5">
+            {[0,1,2].map(i=><div key={i} className={cn("w-3 h-2 rounded-sm",dark?"bg-[#A87C4F]/15":"bg-[#A87C4F]/10")}/>)}
+          </div>
+        </div>
+      </div>
+    );
+    if (variant === 4) return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="flex h-full">
+          <div className={cn("w-1 rounded-sm flex-none m-1.5", acc)} style={{opacity:.7}}/>
+          <div className="flex flex-col justify-center gap-0.5 flex-1 pr-1.5">
+            <div className={cn("h-1 rounded-sm w-5",ln)}/>
+            <div className={cn("h-0.5 rounded-sm w-full",ln2)}/>
+            <div className={cn("h-0.5 rounded-sm w-3/4",ln2)}/>
+          </div>
+        </div>
+      </div>
+    );
+    return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="flex flex-col justify-center h-full px-1.5 gap-0.5">
+          <div className={cn("h-1 rounded-sm w-5",ln)}/>
+          <div className={cn("h-0.5 rounded-sm w-full",ln2)}/>
+          <div className={cn("h-0.5 rounded-sm w-4/5",ln2)}/>
+        </div>
+      </div>
+    );
+  }
+
+  /* CONTACT */
+  if (moduleKey === "contact") {
+    if (variant === 2) return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="p-1 grid grid-cols-2 gap-0.5 h-full">
+          {[0,1].map(i=>(
+            <div key={i} className={cn("rounded-sm flex flex-col justify-center items-center gap-0.5 p-0.5",dark?"bg-[#1A1612]":"bg-[#F8F4EC]")}>
+              <div className={cn("w-1.5 h-1.5 rounded-sm",acc)} style={{opacity:.5}}/>
+              <div className={cn("w-4 h-0.5 rounded-sm",ln2)}/>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    if (variant === 3) return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="flex flex-col justify-center h-full px-1.5 gap-0.5">
+          {[0,1].map(i=><div key={i} className={cn("h-2 rounded-sm border",dark?"border-white/8 bg-[#1A1612]":"border-[#EAE6D8] bg-[#FAF8F4]")}/>)}
+          <div className={cn("h-2 rounded-sm mt-0.5",acc)} style={{opacity:.7}}/>
+        </div>
+      </div>
+    );
+    if (variant === 4) return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="flex flex-col items-center justify-center h-full gap-1 px-1">
+          <div className={cn("h-0.5 rounded-sm w-6",ln2)}/>
+          <div className="flex gap-1">
+            <div className={cn("w-5 h-2 rounded-full",acc)} style={{opacity:.7}}/>
+            <div className={cn("w-5 h-2 rounded-full border",dark?"border-white/15":"border-[#DDD8CC]")}/>
+          </div>
+        </div>
+      </div>
+    );
+    return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="flex flex-col justify-center h-full px-1.5 gap-1">
+          <div className="flex items-center gap-0.5"><div className={cn("w-1 h-1 rounded-sm",acc)} style={{opacity:.5}}/><div className={cn("w-5 h-0.5 rounded-sm",ln2)}/></div>
+          <div className="flex items-center gap-0.5"><div className={cn("w-1 h-1 rounded-sm",acc)} style={{opacity:.35}}/><div className={cn("w-4 h-0.5 rounded-sm",ln2)}/></div>
+        </div>
+      </div>
+    );
+  }
+
+  /* FOOTER */
+  if (variant === 2) return (
+    <div className={cn(base, dark ? "bg-[#0A0907]" : "bg-[#1C1C1C]")} onClick={onClick}>
+      <div className="flex items-center justify-between h-3/4 px-1.5">
+        <div className="w-4 h-0.5 rounded-sm bg-[#A87C4F]/50"/>
+        <div className="flex gap-0.5">{[0,1,2].map(i=><div key={i} className="w-1.5 h-0.5 rounded-sm bg-white/15"/>)}</div>
+      </div>
+      <div className="h-px bg-white/8 mx-1" />
+      <div className="px-1.5 flex items-center h-1/4"><div className="w-8 h-0.5 rounded-sm bg-white/15"/></div>
+    </div>
+  );
+  if (variant === 3) return (
+    <div className={cn(base, dark ? "bg-[#0A0907]" : "bg-[#1C1C1C]")} onClick={onClick}>
+      <div className="p-1 grid grid-cols-3 gap-0.5 h-3/4">
+        {[0,1,2].map(i=>(
+          <div key={i} className="flex flex-col gap-0.5">
+            <div className={cn("h-0.5 rounded-sm",i===0?"bg-[#A87C4F]/50":"bg-white/15")}/>
+            {[0,1].map(j=><div key={j} className="h-0.5 rounded-sm bg-white/8"/>)}
+          </div>
         ))}
+      </div>
+      <div className="h-px bg-white/8 mx-1"/>
+      <div className="px-1.5 flex items-center h-1/4"><div className="w-8 h-0.5 rounded-sm bg-white/15"/></div>
+    </div>
+  );
+  return (
+    <div className={cn(base, dark ? "bg-[#0A0907]" : "bg-[#1C1C1C]")} onClick={onClick}>
+      <div className="flex items-center justify-center h-full px-1.5">
+        <div className="w-full h-0.5 rounded-sm bg-white/20"/>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Module thumbnail previews ── */
+function ModuleThumbnail({ moduleKey, dark }: { moduleKey: ModuleKey; dark: boolean }) {
+  const base = "w-11 h-8 rounded-md overflow-hidden flex-none border shrink-0";
+
+  if (moduleKey === "navbar") return (
+    <div className={cn(base, dark ? "bg-[#0A0907] border-white/8" : "bg-[#F0EDE6] border-[#DDD8CC]")}>
+      <div className="h-full flex items-center px-1.5 gap-1">
+        <div className="w-4 h-1 rounded-sm bg-[#A87C4F]/60" />
+        <div className="flex gap-0.5 ml-auto">
+          {[0, 1, 2].map(i => (
+            <div key={i} className={cn("w-1.5 h-0.5 rounded-sm", dark ? "bg-white/20" : "bg-[#B0A898]")} />
+          ))}
+        </div>
       </div>
     </div>
   );
 
   if (moduleKey === "hero") return (
-    <div className={cn("px-5 py-7 relative", dark ? "bg-[#1A1612]" : "bg-[#F8F4EC]", ring)}>
-      {label_tag}
-      <EditableText
-        value={content.title ?? "Produk Terbaik Untuk Anda"}
-        field="title"
-        isEditable={isSelected}
-        onSave={onContentChange}
-        className={cn("text-[16px] font-serif-display mb-1 block", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}
-      />
-      <EditableText
-        value={content.subtitle ?? "Kualitas premium, harga terjangkau"}
-        field="subtitle"
-        isEditable={isSelected}
-        onSave={onContentChange}
-        className={cn("text-[10px] mb-4 block", dark ? "text-white/60" : "text-[#8A8070]")}
-      />
-      <span className={cn("inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-semibold", dark ? "bg-[#C9A47A] text-white" : "bg-[#A87C4F] text-white")}>
-        <EditableText
-          value={content.btnText ?? "Lihat Produk"}
-          field="btnText"
-          isEditable={isSelected}
-          onSave={onContentChange}
-        />
-      </span>
+    <div className={cn(base, dark ? "bg-[#1A1612] border-white/8" : "bg-[#F8F4EC] border-[#DDD8CC]")}>
+      <div className="h-full flex flex-col justify-center px-1.5 gap-0.5">
+        <div className={cn("w-7 h-1 rounded-sm", dark ? "bg-white/55" : "bg-[#1C1C1C]/55")} />
+        <div className={cn("w-5 h-0.5 rounded-sm", dark ? "bg-white/20" : "bg-[#8A8070]/35")} />
+        <div className="mt-0.5">
+          <div className="w-3.5 h-1 rounded-full bg-[#A87C4F]/65" />
+        </div>
+      </div>
     </div>
   );
 
   if (moduleKey === "gallery") return (
-    <div className={cn("p-4 relative", ring)}>
-      {label_tag}
-      <EditableText
-        value={content.sectionTitle ?? "Produk Kami"}
-        field="sectionTitle"
-        isEditable={isSelected}
-        onSave={onContentChange}
-        className={cn("text-[10px] font-semibold uppercase tracking-wider mb-3 block", dark ? "text-white/55" : "text-[#8A8070]")}
-      />
-      <div className="grid grid-cols-4 gap-2">
-        {[1,2,3,4].map(i => (
-          <div key={i} className={cn("rounded-lg overflow-hidden shadow-[0_1px_6px_rgba(0,0,0,0.06)]", dark ? "bg-[#1A1612]" : "bg-white")}>
-            <div className={cn("h-11", dark ? "bg-[#231F1A]" : "bg-[#F0EDE6]")} />
-            <div className="p-1.5">
-              <p className={cn("text-[9px] font-medium", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>Produk {i}</p>
-              <p className="text-[9px] font-bold text-[#A87C4F]">Rp {i * 175}.000</p>
-            </div>
-          </div>
+    <div className={cn(base, dark ? "bg-[#131110] border-white/8" : "bg-white border-[#DDD8CC]")}>
+      <div className="h-full p-1 grid grid-cols-2 gap-0.5">
+        {[0, 1, 2, 3].map(i => (
+          <div key={i} className={cn("rounded-sm", dark ? "bg-[#231F1A]" : "bg-[#F0EDE6]")} />
         ))}
       </div>
     </div>
   );
 
   if (moduleKey === "about") return (
-    <div className={cn("px-5 py-5 border-t relative", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8]", ring)}>
-      {label_tag}
-      <EditableText
-        value={content.title ?? "Tentang Kami"}
-        field="title"
-        isEditable={isSelected}
-        onSave={onContentChange}
-        className={cn("text-[13px] font-serif-display mb-1.5 block", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}
-      />
-      <EditableText
-        value={content.body ?? "Kami adalah UMKM yang berkomitmen memberikan produk terbaik dengan pelayanan prima."}
-        field="body"
-        isEditable={isSelected}
-        onSave={onContentChange}
-        multiline
-        className={cn("text-[10px] leading-relaxed block", dark ? "text-white/65" : "text-[#8A8070]")}
-      />
+    <div className={cn(base, dark ? "bg-[#1A1612] border-white/8" : "bg-white border-[#DDD8CC]")}>
+      <div className="h-full flex flex-col justify-center px-1.5 gap-0.5">
+        <div className={cn("w-5 h-1 rounded-sm", dark ? "bg-white/50" : "bg-[#1C1C1C]/50")} />
+        <div className={cn("w-7 h-0.5 rounded-sm", dark ? "bg-white/18" : "bg-[#8A8070]/25")} />
+        <div className={cn("w-6 h-0.5 rounded-sm", dark ? "bg-white/18" : "bg-[#8A8070]/25")} />
+      </div>
     </div>
   );
 
   if (moduleKey === "contact") return (
-    <div className={cn("px-5 py-4 border-t relative", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8]", ring)}>
-      {label_tag}
-      <p className={cn("text-[10px] font-semibold uppercase tracking-wider mb-2", dark ? "text-white/55" : "text-[#8A8070]")}>Hubungi Kami</p>
-      <div className="flex flex-wrap gap-4">
-        <span className={cn("text-[10px] flex items-center gap-1", dark ? "text-white/75" : "text-[#5A5248]")}>
-          ✉{" "}
-          <EditableText
-            value={content.email ?? "hello@tokosaya.id"}
-            field="email"
-            isEditable={isSelected}
-            onSave={onContentChange}
-            className={cn("text-[10px]", dark ? "text-white/75" : "text-[#5A5248]")}
-          />
-        </span>
-        <span className={cn("text-[10px] flex items-center gap-1", dark ? "text-white/75" : "text-[#5A5248]")}>
-          📱{" "}
-          <EditableText
-            value={content.phone ?? "+62 812 3456 7890"}
-            field="phone"
-            isEditable={isSelected}
-            onSave={onContentChange}
-            className={cn("text-[10px]", dark ? "text-white/75" : "text-[#5A5248]")}
-          />
-        </span>
+    <div className={cn(base, dark ? "bg-[#1A1612] border-white/8" : "bg-white border-[#DDD8CC]")}>
+      <div className="h-full flex flex-col justify-center px-1.5 gap-1">
+        <div className="flex items-center gap-0.5">
+          <div className="w-1 h-1 rounded-sm bg-[#A87C4F]/55" />
+          <div className={cn("w-5 h-0.5 rounded-sm", dark ? "bg-white/25" : "bg-[#8A8070]/35")} />
+        </div>
+        <div className="flex items-center gap-0.5">
+          <div className="w-1 h-1 rounded-sm bg-[#A87C4F]/35" />
+          <div className={cn("w-4 h-0.5 rounded-sm", dark ? "bg-white/25" : "bg-[#8A8070]/35")} />
+        </div>
       </div>
     </div>
   );
 
   if (moduleKey === "footer") return (
-    <div className={cn("px-5 py-3.5 border-t relative", dark ? "border-white/6 bg-[#0A0907]" : "border-[#EAE6D8] bg-[#1C1C1C]", ring)}>
-      {label_tag}
-      <EditableText
-        value={content.copyright ?? "© 2025 Toko Saya · Powered by Bikinin"}
-        field="copyright"
-        isEditable={isSelected}
-        onSave={onContentChange}
-        className="text-[10px] text-white/30"
-      />
+    <div className={cn(base, "border-0", dark ? "bg-[#0A0907]" : "bg-[#1A1A1A]")}>
+      <div className="h-full flex items-center justify-center px-1.5">
+        <div className="w-full h-0.5 rounded-sm bg-white/20" />
+      </div>
     </div>
   );
 
@@ -765,9 +1334,13 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab]         = useState<"modules" | "assets" | "templates">("modules");
   const [droppedAssets, setDroppedAssets] = useState<DroppedAsset[]>([]);
   const [draggedAsset, setDraggedAsset]   = useState<DroppedAsset | null>(null);
+  const [draggedModule, setDraggedModule] = useState<ModuleKey | null>(null);
   const [sidebarOpen, setSidebarOpen]     = useState(false);
   const [moduleContent, setModuleContent] = useState<Record<ModuleKey, Record<string, string>>>(
     { ...DEFAULT_CONTENT }
+  );
+  const [moduleDesigns, setModuleDesigns] = useState<Record<ModuleKey, number>>(
+    { navbar: 1, hero: 1, gallery: 1, about: 1, contact: 1, footer: 1 }
   );
   const progressRef = useRef<HTMLDivElement>(null);
 
@@ -1136,7 +1709,7 @@ export default function DashboardPage() {
                   SECTIONS
                 </p>
                 <p className={cn("text-[10px]", dark ? "text-white/55" : "text-[#A0998A]")}>
-                  Ketuk untuk tambah · seret untuk urut ulang
+                  Ketuk atau seret ke canvas · tahan untuk urut
                 </p>
               </div>
 
@@ -1156,6 +1729,9 @@ export default function DashboardPage() {
                       dark={dark}
                       onSelect={() => setSelected(m.key)}
                       onToggle={() => toggleModule(m.key)}
+                      setDraggedModule={setDraggedModule}
+                      currentDesign={moduleDesigns[m.key]}
+                      onDesignChange={(v) => setModuleDesigns(prev => ({ ...prev, [m.key]: v }))}
                     />
                   ))}
                 </Reorder.Group>
@@ -1208,10 +1784,14 @@ export default function DashboardPage() {
                       <div
                         key={asset.label}
                         draggable
-                        onDragStart={() => setDraggedAsset({ id: crypto.randomUUID(), label: asset.label, icon: asset.icon, price: asset.price })}
+                        onClick={() => addAsset(asset)}
+                        onDragStart={(e) => {
+                          e.dataTransfer.setData("text/plain", asset.label);
+                          setDraggedAsset({ id: crypto.randomUUID(), label: asset.label, icon: asset.icon, price: asset.price });
+                        }}
                         onDragEnd={() => setDraggedAsset(null)}
                         className={cn(
-                          "flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-all select-none",
+                          "flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-all select-none cursor-pointer active:scale-[0.98]",
                           "md:cursor-grab md:active:cursor-grabbing",
                           dark
                             ? "border-white/6 bg-white/2 hover:border-[#A87C4F]/30 hover:bg-[#A87C4F]/6"
@@ -1227,31 +1807,14 @@ export default function DashboardPage() {
                             {asset.desc}
                           </p>
                         </div>
-
-                        {/* Price badge */}
                         <span className={cn(
                           "text-[9px] font-semibold flex-none px-1.5 py-0.5 rounded-full",
-                          "hidden md:inline",
                           asset.price > 0
                             ? dark ? "bg-[#A87C4F]/20 text-[#C9A47A]" : "bg-[#A87C4F]/10 text-[#A87C4F]"
                             : dark ? "bg-[#4CAF7D]/20 text-[#4CAF7D]" : "bg-[#4CAF7D]/10 text-[#4CAF7D]"
                         )}>
                           {asset.price > 0 ? `+${(asset.price / 1_000).toFixed(0)}k` : "Free"}
                         </span>
-
-                        {/* Tambah button — mobile & tablet (touch devices use button instead of drag) */}
-                        <button
-                          type="button"
-                          onClick={() => addAsset(asset)}
-                          className={cn(
-                            "md:hidden flex-none flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all active:scale-95",
-                            asset.price > 0
-                              ? "bg-[#A87C4F] text-white active:bg-[#9A7045]"
-                              : dark ? "bg-[#4CAF7D]/20 text-[#4CAF7D]" : "bg-[#4CAF7D]/15 text-[#3A9E6D]"
-                          )}
-                        >
-                          <Plus size={10} /> {asset.price > 0 ? `+${(asset.price / 1_000).toFixed(0)}k` : "Tambah"}
-                        </button>
                       </div>
                     ))}
                   </div>
@@ -1363,11 +1926,14 @@ export default function DashboardPage() {
           </div>
 
           {/* Canvas */}
-          <div className={cn(
-            "flex-1 flex items-start justify-center overflow-auto",
-            dark ? "bg-[#070604]" : "bg-[#E3DFD5]",
-            viewMode === "desktop" ? "p-3 md:p-8" : "p-3 pt-6 md:p-8 md:pt-10"
-          )}>
+          <div
+            className={cn(
+              "flex-1 flex items-start justify-center overflow-auto",
+              dark ? "bg-[#070604]" : "bg-[#E3DFD5]",
+              viewMode === "desktop" ? "p-3 md:p-8" : "p-3 pt-6 md:p-8 md:pt-10"
+            )}
+            onDragOver={e => e.preventDefault()}
+          >
             <div
               className={cn(
                 "preview-canvas overflow-hidden rounded-xl transition-all duration-300 min-h-[360px] md:min-h-[540px]",
@@ -1393,14 +1959,25 @@ export default function DashboardPage() {
                 onDragOver={e => e.preventDefault()}
                 onDrop={e => {
                   e.preventDefault();
-                  if (draggedAsset) {
-                    setDroppedAssets(prev => [...prev, draggedAsset]);
+                  const text = e.dataTransfer.getData("text/plain");
+                  if (text.startsWith("module:")) {
+                    const key = text.replace("module:", "") as ModuleKey;
+                    setModules(prev => prev.map(m => m.key === key ? { ...m, active: true } : m));
+                    setDraggedModule(null);
+                  } else if (text) {
+                    for (const cat of ASSET_CATEGORIES) {
+                      const item = cat.items.find(a => a.label === text);
+                      if (item) {
+                        setDroppedAssets(prev => [...prev, { id: crypto.randomUUID(), label: item.label, icon: item.icon, price: item.price }]);
+                        break;
+                      }
+                    }
                     setDraggedAsset(null);
                   }
                 }}
               >
                 {/* Empty state */}
-                {modules.filter(m => m.active).length === 0 && droppedAssets.length === 0 && (
+                {modules.filter(m => m.active).length === 0 && droppedAssets.length === 0 && !draggedModule && (
                   <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
                     <div className={cn(
                       "w-14 h-14 rounded-2xl flex items-center justify-center mb-4",
@@ -1412,7 +1989,7 @@ export default function DashboardPage() {
                       Workspace kosong
                     </p>
                     <p className={cn("text-[11px] max-w-[200px] leading-relaxed", dark ? "text-white/25" : "text-[#A0998A]")}>
-                      Ketuk section di panel kiri untuk mulai membangun website kamu
+                      Ketuk atau seret section ke sini untuk membangun website kamu
                     </p>
                   </div>
                 )}
@@ -1432,6 +2009,7 @@ export default function DashboardPage() {
                         label={m.label}
                         content={moduleContent[m.key]}
                         onContentChange={(field, value) => handleModuleContentChange(m.key, field, value)}
+                        designVariant={moduleDesigns[m.key]}
                       />
                       {/* Remove button - touch-friendly (always partially visible) */}
                       <button
@@ -1474,15 +2052,19 @@ export default function DashboardPage() {
                   </div>
                 ))}
 
-                {/* Drop zone for assets (only shows when modules exist or hidden on mobile) */}
-                {(modules.filter(m => m.active).length > 0 || droppedAssets.length > 0) && (
+                {/* Drop zone */}
+                {(modules.filter(m => m.active).length > 0 || droppedAssets.length > 0 || draggedModule !== null || draggedAsset !== null) && (
                   <div
                     className={cn(
                       "flex items-center justify-center py-4 border-2 border-dashed mx-4 my-3 rounded-xl text-[11px] transition-colors",
-                      dark ? "border-white/6 text-white/20" : "border-[#E0D9CC] text-[#C0B8A8]"
+                      draggedModule || draggedAsset
+                        ? dark ? "border-[#A87C4F]/40 bg-[#A87C4F]/5 text-[#C9A47A]" : "border-[#A87C4F]/40 bg-[#FBF7F2] text-[#A87C4F]"
+                        : dark ? "border-white/6 text-white/20" : "border-[#E0D9CC] text-[#C0B8A8]"
                     )}
                   >
-                    <span className="hidden md:inline">Seret aset dari panel kiri ke sini</span>
+                    <span className="hidden md:inline">
+                      {draggedModule ? "Lepaskan di sini untuk menambahkan section" : "Seret aset dari panel kiri ke sini"}
+                    </span>
                     <span className="md:hidden">Buka panel → Aset untuk menambahkan</span>
                   </div>
                 )}
