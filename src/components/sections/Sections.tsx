@@ -143,7 +143,7 @@ const PLANS = [
   },
   {
     name: "Starter",
-    price: 49_000,
+    price: 39_000,
     period: "bulan",
     desc: "Untuk UMKM & profesional yang ingin tampil lebih",
     dragLimit: "3 halaman",
@@ -161,7 +161,7 @@ const PLANS = [
   },
   {
     name: "Pro",
-    price: 99_000,
+    price: 89_000,
     period: "bulan",
     desc: "Untuk bisnis yang butuh fitur lengkap tanpa batas",
     dragLimit: "Tak terbatas",
