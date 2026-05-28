@@ -6,13 +6,13 @@ import { useRouter } from "next/navigation";
 import { Reorder, useDragControls, motion } from "framer-motion";
 import {
   Eye, Send, Moon, Sun, GripVertical, Plus, Wand2,
-  Monitor, Smartphone, Settings2, Layers, X, Check, ArrowLeft, Menu,
+  Monitor, Smartphone, Settings2, Layers, X, Check, ArrowLeft, Menu, AlertCircle,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { cn } from "@/lib/utils";
 
 /* ─── Types ── */
-type ModuleKey = "navbar" | "hero" | "gallery" | "about" | "contact" | "footer";
+type ModuleKey = "navbar" | "hero" | "gallery" | "services" | "about" | "contact" | "footer";
 type PlanKey = "free" | "pro" | "enterprise";
 
 const PLAN_META: Record<PlanKey, { label: string; color: string; limit: string; bg: string }> = {
@@ -37,12 +37,13 @@ interface Module {
 
 /* ─── Constants ── */
 const INITIAL_MODULES: Module[] = [
-  { key: "navbar",  label: "Navbar",        icon: "≡", price: 0, active: false },
-  { key: "hero",    label: "Hero Section",  icon: "◉", price: 0, active: false },
-  { key: "gallery", label: "Galeri Produk", icon: "⊞", price: 0, active: false },
-  { key: "about",   label: "Tentang Kami",  icon: "ℹ", price: 0, active: false },
-  { key: "contact", label: "Kontak",        icon: "✉", price: 0, active: false },
-  { key: "footer",  label: "Footer",        icon: "▭", price: 0, active: false },
+  { key: "navbar",   label: "Navbar",        icon: "≡", price: 0, active: false },
+  { key: "hero",     label: "Hero Section",  icon: "◉", price: 0, active: false },
+  { key: "gallery",  label: "Galeri Produk", icon: "⊞", price: 0, active: false },
+  { key: "services", label: "Layanan",       icon: "✦", price: 0, active: false },
+  { key: "about",    label: "Tentang Kami",  icon: "ℹ", price: 0, active: false },
+  { key: "contact",  label: "Kontak",        icon: "✉", price: 0, active: false },
+  { key: "footer",   label: "Footer",        icon: "▭", price: 0, active: false },
 ];
 
 const STEPS = ["Pilih Modul", "Atur Konten", "Publikasi"] as const;
@@ -98,33 +99,26 @@ const ASSET_CATEGORIES = [
   },
 ] as const;
 
-const ALL_MODULES: Module[] = [
-  { key: "navbar",  label: "Navbar",        icon: "≡", price: 0, active: false },
-  { key: "hero",    label: "Hero Section",  icon: "◉", price: 0, active: false },
-  { key: "gallery", label: "Galeri Produk", icon: "⊞", price: 0, active: false },
-  { key: "about",   label: "Tentang Kami",  icon: "ℹ", price: 0, active: false },
-  { key: "contact", label: "Kontak",        icon: "✉", price: 0, active: false },
-  { key: "footer",  label: "Footer",        icon: "▭", price: 0, active: false },
-];
-
 /* ─── Default module content ── */
 const DEFAULT_CONTENT: Record<ModuleKey, Record<string, string>> = {
-  navbar:  { brandName: "Toko Saya" },
-  hero:    { title: "Produk Terbaik Untuk Anda", subtitle: "Kualitas premium, harga terjangkau", btnText: "Lihat Produk" },
-  gallery: { sectionTitle: "Produk Kami" },
-  about:   { title: "Tentang Kami", body: "Kami adalah UMKM yang berkomitmen memberikan produk terbaik dengan pelayanan prima." },
-  contact: { email: "hello@tokosaya.id", phone: "+62 812 3456 7890" },
-  footer:  { copyright: "© 2025 Toko Saya · Powered by Bikinin" },
+  navbar:   { brandName: "Toko Saya" },
+  hero:     { title: "Produk Terbaik Untuk Anda", subtitle: "Kualitas premium, harga terjangkau", btnText: "Lihat Produk" },
+  gallery:  { sectionTitle: "Produk Kami" },
+  services: { sectionTitle: "Layanan Kami", service1: "Konsultasi", service2: "Desain", service3: "Pemasaran" },
+  about:    { title: "Tentang Kami", body: "Kami adalah UMKM yang berkomitmen memberikan produk terbaik dengan pelayanan prima." },
+  contact:  { email: "hello@tokosaya.id", phone: "+62 812 3456 7890" },
+  footer:   { copyright: "© 2025 Toko Saya · Powered by Bikinin" },
 };
 
 /* ─── Design variants per module ── */
 const MODULE_DESIGN_VARIANTS: Record<ModuleKey, Array<{ id: number; name: string }>> = {
-  navbar:  [{ id: 1, name: "Klasik" }, { id: 2, name: "Tengah" }, { id: 3, name: "Minimal" }, { id: 4, name: "Solid" }],
-  hero:    [{ id: 1, name: "Standar" }, { id: 2, name: "Tengah" }, { id: 3, name: "Split" }, { id: 4, name: "Bold" }],
-  gallery: [{ id: 1, name: "Grid 4" }, { id: 2, name: "Grid 2" }, { id: 3, name: "Featured" }, { id: 4, name: "List" }],
-  about:   [{ id: 1, name: "Simpel" }, { id: 2, name: "Split" }, { id: 3, name: "Tengah" }, { id: 4, name: "Kartu" }],
-  contact: [{ id: 1, name: "Simpel" }, { id: 2, name: "Kartu" }, { id: 3, name: "Form" }, { id: 4, name: "CTA" }],
-  footer:  [{ id: 1, name: "Minimal" }, { id: 2, name: "Dua Kolom" }, { id: 3, name: "Lengkap" }],
+  navbar:   [{ id: 1, name: "Klasik" }, { id: 2, name: "Tengah" }, { id: 3, name: "Minimal" }, { id: 4, name: "Solid" }],
+  hero:     [{ id: 1, name: "Standar" }, { id: 2, name: "Tengah" }, { id: 3, name: "Split" }, { id: 4, name: "Bold" }],
+  gallery:  [{ id: 1, name: "Grid 4" }, { id: 2, name: "Grid 2" }, { id: 3, name: "Featured" }, { id: 4, name: "List" }],
+  services: [{ id: 1, name: "Grid 3" }, { id: 2, name: "List" }, { id: 3, name: "Ikon Besar" }],
+  about:    [{ id: 1, name: "Simpel" }, { id: 2, name: "Split" }, { id: 3, name: "Tengah" }, { id: 4, name: "Kartu" }],
+  contact:  [{ id: 1, name: "Simpel" }, { id: 2, name: "Kartu" }, { id: 3, name: "Form" }, { id: 4, name: "CTA" }],
+  footer:   [{ id: 1, name: "Minimal" }, { id: 2, name: "Dua Kolom" }, { id: 3, name: "Lengkap" }],
 };
 
 /* ─── Template configurations ── */
@@ -544,6 +538,62 @@ function ModulePreview({
     );
   }
 
+  /* ── SERVICES ── */
+  if (moduleKey === "services") {
+    const title = <EditableText value={content.sectionTitle ?? "Layanan Kami"} field="sectionTitle" isEditable={isSelected} onSave={onContentChange} className={cn("text-[10px] font-semibold uppercase tracking-wider mb-3 block", dark ? "text-white/55" : "text-[#8A8070]")} />;
+    const items = [
+      { field: "service1", icon: "💼", val: content.service1 ?? "Konsultasi", desc: "Solusi tepat untuk bisnis Anda" },
+      { field: "service2", icon: "🎨", val: content.service2 ?? "Desain",     desc: "Visual menarik & profesional" },
+      { field: "service3", icon: "📣", val: content.service3 ?? "Pemasaran",  desc: "Strategi jangkau pelanggan" },
+    ];
+    if (designVariant === 2) return (
+      <div className={cn("p-4 border-t relative", dark ? "border-white/6 bg-[#131110]" : "border-[#EAE6D8] bg-white", ring)}>
+        {label_tag}
+        {title}
+        <div className="flex flex-col gap-2">
+          {items.map(s => (
+            <div key={s.field} className={cn("flex items-center gap-3 rounded-xl border p-2.5", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8] bg-[#FAF8F4]")}>
+              <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center text-[14px] flex-none", dark ? "bg-[#A87C4F]/15" : "bg-[#A87C4F]/10")}>{s.icon}</div>
+              <div className="flex-1 min-w-0">
+                <EditableText value={s.val} field={s.field} isEditable={isSelected} onSave={onContentChange} className={cn("text-[11px] font-semibold leading-tight block", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")} />
+                <p className={cn("text-[9px] leading-tight", dark ? "text-white/45" : "text-[#8A8070]")}>{s.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    if (designVariant === 3) return (
+      <div className={cn("p-5 border-t relative text-center", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8] bg-[#FBF7F2]", ring)}>
+        {label_tag}
+        {title}
+        <div className="grid grid-cols-3 gap-3">
+          {items.map(s => (
+            <div key={s.field} className="flex flex-col items-center">
+              <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-[20px] mb-1.5", dark ? "bg-[#A87C4F]/20" : "bg-[#A87C4F]/12")}>{s.icon}</div>
+              <EditableText value={s.val} field={s.field} isEditable={isSelected} onSave={onContentChange} className={cn("text-[10px] font-semibold", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    return (
+      <div className={cn("p-4 border-t relative", dark ? "border-white/6 bg-[#131110]" : "border-[#EAE6D8] bg-white", ring)}>
+        {label_tag}
+        {title}
+        <div className="grid grid-cols-3 gap-2">
+          {items.map(s => (
+            <div key={s.field} className={cn("rounded-xl border p-3 text-center", dark ? "border-white/6 bg-[#1A1612]" : "border-[#EAE6D8] bg-[#FAF8F4]")}>
+              <span className="text-[18px] block mb-1.5">{s.icon}</span>
+              <EditableText value={s.val} field={s.field} isEditable={isSelected} onSave={onContentChange} className={cn("text-[10px] font-semibold mb-1 block", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")} />
+              <p className={cn("text-[8px] leading-tight", dark ? "text-white/45" : "text-[#8A8070]")}>Solusi terbaik</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   /* ── ABOUT ── */
   if (moduleKey === "about") {
     if (designVariant === 2) return (
@@ -843,6 +893,46 @@ function DesignVariantThumb({ moduleKey, variant, selected, dark, onClick }: {
     );
   }
 
+  /* SERVICES */
+  if (moduleKey === "services") {
+    if (variant === 2) return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="p-1 flex flex-col gap-0.5 h-full justify-around">
+          {[0,1,2].map(i => (
+            <div key={i} className="flex items-center gap-0.5">
+              <div className={cn("w-2 h-2 rounded-sm flex-none", acc)} style={{opacity: 0.55}} />
+              <div className={cn("h-0.5 rounded-sm flex-1", ln2)} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    if (variant === 3) return (
+      <div className={cn(base, bg2)} onClick={onClick}>
+        <div className="p-1 grid grid-cols-3 gap-0.5 h-full items-center">
+          {[0,1,2].map(i => (
+            <div key={i} className="flex flex-col items-center gap-0.5">
+              <div className={cn("w-2.5 h-2.5 rounded-full", acc)} style={{opacity: 0.6}} />
+              <div className={cn("h-0.5 w-3 rounded-sm", ln2)} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+    return (
+      <div className={cn(base, bg)} onClick={onClick}>
+        <div className="p-1 grid grid-cols-3 gap-0.5 h-full">
+          {[0,1,2].map(i => (
+            <div key={i} className={cn("rounded-sm flex flex-col items-center justify-center gap-0.5 p-0.5", dark ? "bg-[#1A1612]" : "bg-[#F0EDE6]")}>
+              <div className={cn("w-1.5 h-1.5 rounded-sm", acc)} style={{opacity: 0.55}} />
+              <div className={cn("h-0.5 w-3 rounded-sm", ln2)} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   /* ABOUT */
   if (moduleKey === "about") {
     if (variant === 2) return (
@@ -1004,6 +1094,18 @@ function ModuleThumbnail({ moduleKey, dark }: { moduleKey: ModuleKey; dark: bool
       <div className="h-full p-1 grid grid-cols-2 gap-0.5">
         {[0, 1, 2, 3].map(i => (
           <div key={i} className={cn("rounded-sm", dark ? "bg-[#231F1A]" : "bg-[#F0EDE6]")} />
+        ))}
+      </div>
+    </div>
+  );
+
+  if (moduleKey === "services") return (
+    <div className={cn(base, dark ? "bg-[#131110] border-white/8" : "bg-white border-[#DDD8CC]")}>
+      <div className="h-full p-1 grid grid-cols-3 gap-0.5">
+        {[0, 1, 2].map(i => (
+          <div key={i} className={cn("rounded-sm flex items-center justify-center", dark ? "bg-[#1A1612]" : "bg-[#F0EDE6]")}>
+            <div className="w-1 h-1 rounded-sm bg-[#A87C4F]/65" />
+          </div>
         ))}
       </div>
     </div>
@@ -1347,13 +1449,14 @@ export default function DashboardPage() {
     { ...DEFAULT_CONTENT }
   );
   const [moduleDesigns, setModuleDesigns] = useState<Record<ModuleKey, number>>(
-    { navbar: 1, hero: 1, gallery: 1, about: 1, contact: 1, footer: 1 }
+    { navbar: 1, hero: 1, gallery: 1, services: 1, about: 1, contact: 1, footer: 1 }
   );
   const progressRef   = useRef<HTMLDivElement>(null);
   const canvasDropRef = useRef<HTMLDivElement>(null);
 
   const [touchDragAsset, setTouchDragAsset] = useState<{ label: string; icon: string; price: number } | null>(null);
   const [touchDragPos,   setTouchDragPos]   = useState({ x: 0, y: 0 });
+  const [showEmptyNotice, setShowEmptyNotice] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("bikinin-dark") === "true";
@@ -1442,6 +1545,7 @@ export default function DashboardPage() {
   }, [addOnPrice]);
 
   const activeModules = modules.filter(m => m.active);
+  const isWorkspaceEmpty = activeModules.length === 0 && droppedAssets.length === 0;
 
   const handlePublish = () => {
     const extras = [
@@ -1452,6 +1556,10 @@ export default function DashboardPage() {
   };
 
   const onPublishClick = () => {
+    if (isWorkspaceEmpty) {
+      setShowEmptyNotice(true);
+      return;
+    }
     setCurrentStep(2);
     handlePublish();
     if (isSubscribed && addOnPrice === 0) {
@@ -1463,6 +1571,21 @@ export default function DashboardPage() {
       const subscribedParam = isSubscribed ? "&subscribed=1" : "";
       router.push(`/payment?plan=${plan}${subscribedParam}`);
     }
+  };
+
+  const goToTab = (tab: "modules" | "assets" | "templates") => {
+    setActiveTab(tab);
+    setShowEmptyNotice(false);
+    if (typeof window !== "undefined" && window.innerWidth < 768) setSidebarOpen(true);
+  };
+
+  const goToStep = (i: number) => {
+    // Blokir lompat ke step Publikasi (index 2) kalau workspace masih kosong
+    if (i === 2 && isWorkspaceEmpty) {
+      setShowEmptyNotice(true);
+      return;
+    }
+    setCurrentStep(i);
   };
 
   return (
@@ -1551,8 +1674,13 @@ export default function DashboardPage() {
             <button
               key={step}
               type="button"
-              onClick={() => setCurrentStep(i)}
-              className="flex items-center gap-2"
+              onClick={() => goToStep(i)}
+              disabled={i === 2 && isWorkspaceEmpty}
+              className={cn(
+                "flex items-center gap-2",
+                i === 2 && isWorkspaceEmpty && "cursor-not-allowed"
+              )}
+              title={i === 2 && isWorkspaceEmpty ? "Tambah modul, aset, atau template dulu" : undefined}
             >
               <motion.div
                 animate={{
@@ -1604,7 +1732,8 @@ export default function DashboardPage() {
               <button
                 key={i}
                 type="button"
-                onClick={() => setCurrentStep(i)}
+                onClick={() => goToStep(i)}
+                disabled={i === 2 && isWorkspaceEmpty}
                 aria-label={`Langkah ${i + 1}`}
                 className={cn(
                   "rounded-full transition-all duration-200",
@@ -1659,12 +1788,18 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={onPublishClick}
+            aria-disabled={isWorkspaceEmpty ? "true" : "false"}
+            title={isWorkspaceEmpty ? "Workspace kosong — tambah modul, aset, atau template dulu" : "Publikasikan website"}
             className={cn(
               "flex items-center gap-1.5 rounded-full font-semibold transition-all",
               "px-2.5 py-1.5 text-[11px] md:px-4 md:text-[12px]",
-              dark
-                ? "bg-[#F0EDE8] text-[#1C1C1C] hover:bg-white"
-                : "bg-[#A87C4F] text-white hover:bg-[#9A7045] publish-btn-shadow"
+              isWorkspaceEmpty
+                ? dark
+                  ? "bg-white/8 text-white/30 cursor-not-allowed"
+                  : "bg-[#E8E4D8] text-[#A0998A] cursor-not-allowed"
+                : dark
+                  ? "bg-[#F0EDE8] text-[#1C1C1C] hover:bg-white"
+                  : "bg-[#A87C4F] text-white hover:bg-[#9A7045] publish-btn-shadow"
             )}
           >
             <Send size={11} />
@@ -1746,36 +1881,6 @@ export default function DashboardPage() {
                     />
                   ))}
                 </Reorder.Group>
-              </div>
-
-              {/* Cost estimator */}
-              <div className="px-3 pb-3">
-                <div className={cn(
-                  "rounded-xl p-4 border",
-                  dark ? "bg-[#A87C4F]/8 border-[#A87C4F]/20" : "bg-[#FBF7F2] border-[#E8DFD0]"
-                )}>
-                  <p className={cn("text-[10px] font-bold tracking-[0.14em] uppercase mb-1", dark ? "text-white/55" : "text-[#8A8070]")}>
-                    ADD-ON BIAYA
-                  </p>
-                  <p className={cn("text-[22px] leading-tight font-serif-display mb-0.5", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>
-                    {addOnPrice === 0 ? "Gratis" : `Rp ${addOnPrice.toLocaleString("id-ID")}`}
-                  </p>
-                  <p className={cn("text-[9px] mb-2", dark ? "text-white/50" : "text-[#B0A898]")}>
-                    di luar biaya berlangganan
-                  </p>
-                  <div className={cn("w-full h-1 rounded-full mb-2", dark ? "bg-white/8" : "bg-[#E8DFD0]")}>
-                    <div
-                      ref={progressRef}
-                      className="h-full rounded-full bg-[#A87C4F] transition-all duration-500"
-                    />
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#4CAF7D]" />
-                    <p className={cn("text-[10px]", dark ? "text-white/60" : "text-[#8A8070]")}>
-                      {activeModules.length} modul · {droppedAssets.length} aset
-                    </p>
-                  </div>
-                </div>
               </div>
             </>
           )}
@@ -1900,8 +2005,38 @@ export default function DashboardPage() {
             </div>
           )}
 
+          {/* Cost estimator — persistent across all tabs */}
+          <div className={cn("px-3 pt-3 pb-3 border-t flex-none", dark ? "border-white/6" : "border-[#E0D9CC]")}>
+            <div className={cn(
+              "rounded-xl p-4 border",
+              dark ? "bg-[#A87C4F]/8 border-[#A87C4F]/20" : "bg-[#FBF7F2] border-[#E8DFD0]"
+            )}>
+              <p className={cn("text-[10px] font-bold tracking-[0.14em] uppercase mb-1", dark ? "text-white/55" : "text-[#8A8070]")}>
+                ADD-ON BIAYA
+              </p>
+              <p className={cn("text-[22px] leading-tight font-serif-display mb-0.5", dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]")}>
+                {addOnPrice === 0 ? "Gratis" : `Rp ${addOnPrice.toLocaleString("id-ID")}`}
+              </p>
+              <p className={cn("text-[9px] mb-2", dark ? "text-white/50" : "text-[#B0A898]")}>
+                di luar biaya berlangganan
+              </p>
+              <div className={cn("w-full h-1 rounded-full mb-2", dark ? "bg-white/8" : "bg-[#E8DFD0]")}>
+                <div
+                  ref={progressRef}
+                  className="h-full rounded-full bg-[#A87C4F] transition-all duration-500"
+                />
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#4CAF7D]" />
+                <p className={cn("text-[10px]", dark ? "text-white/60" : "text-[#8A8070]")}>
+                  {activeModules.length} modul · {droppedAssets.length} aset
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Dark mode toggle */}
-          <div className={cn("px-4 py-3 border-t flex items-center justify-between", dark ? "border-white/6" : "border-[#E0D9CC]")}>
+          <div className={cn("px-4 py-3 border-t flex items-center justify-between flex-none", dark ? "border-white/6" : "border-[#E0D9CC]")}>
             <button
               type="button"
               onClick={toggleDark}
@@ -2108,6 +2243,113 @@ export default function DashboardPage() {
           </div>
         </main>
       </div>
+
+      {/* Empty workspace notification */}
+      {showEmptyNotice && (
+        <div
+          className="fixed inset-0 z-[9998] flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm"
+          onClick={() => setShowEmptyNotice(false)}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            className={cn(
+              "relative w-full max-w-sm rounded-2xl border shadow-2xl p-6",
+              dark ? "bg-[#131110] border-white/10" : "bg-white border-[#E0D9CC]"
+            )}
+          >
+            <button
+              type="button"
+              onClick={() => setShowEmptyNotice(false)}
+              aria-label="Tutup"
+              className={cn(
+                "absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center transition-colors",
+                dark ? "text-white/40 hover:text-white/80 hover:bg-white/8" : "text-[#8A8070] hover:text-[#1C1C1C] hover:bg-[#F0EDE6]"
+              )}
+            >
+              <X size={14} />
+            </button>
+
+            <div className={cn(
+              "w-12 h-12 rounded-2xl flex items-center justify-center mb-4",
+              dark ? "bg-[#A87C4F]/15" : "bg-[#A87C4F]/10"
+            )}>
+              <AlertCircle size={22} className="text-[#A87C4F]" />
+            </div>
+
+            <h3 className={cn(
+              "text-[18px] font-serif-display mb-1.5",
+              dark ? "text-[#F0EDE8]" : "text-[#1C1C1C]"
+            )}>
+              Workspace masih kosong
+            </h3>
+            <p className={cn(
+              "text-[12px] leading-relaxed mb-5",
+              dark ? "text-white/55" : "text-[#5A5248]"
+            )}>
+              Sebelum publikasi, tambahkan minimal satu <strong>modul</strong>, <strong>aset</strong>, atau pilih <strong>template</strong> siap pakai untuk halamanmu.
+            </p>
+
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => goToTab("modules")}
+                className={cn(
+                  "flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border text-[12px] font-medium transition-all text-left",
+                  dark
+                    ? "border-white/8 bg-white/3 hover:border-[#A87C4F]/40 hover:bg-[#A87C4F]/8 text-[#F0EDE8]"
+                    : "border-[#EAE6D8] bg-[#FAF8F4] hover:border-[#A87C4F]/40 hover:bg-[#FBF7F2] text-[#2A2520]"
+                )}
+              >
+                <Layers size={14} className="text-[#A87C4F] flex-none" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold leading-tight">Tambah Modul</p>
+                  <p className={cn("text-[10px] leading-tight", dark ? "text-white/45" : "text-[#A0998A]")}>
+                    Pilih section seperti hero, galeri, kontak
+                  </p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => goToTab("assets")}
+                className={cn(
+                  "flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border text-[12px] font-medium transition-all text-left",
+                  dark
+                    ? "border-white/8 bg-white/3 hover:border-[#A87C4F]/40 hover:bg-[#A87C4F]/8 text-[#F0EDE8]"
+                    : "border-[#EAE6D8] bg-[#FAF8F4] hover:border-[#A87C4F]/40 hover:bg-[#FBF7F2] text-[#2A2520]"
+                )}
+              >
+                <Settings2 size={14} className="text-[#A87C4F] flex-none" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold leading-tight">Tambah Aset</p>
+                  <p className={cn("text-[10px] leading-tight", dark ? "text-white/45" : "text-[#A0998A]")}>
+                    Foto, tombol, form, testimoni, dan lainnya
+                  </p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => goToTab("templates")}
+                className={cn(
+                  "flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border text-[12px] font-medium transition-all text-left",
+                  dark
+                    ? "border-white/8 bg-white/3 hover:border-[#A87C4F]/40 hover:bg-[#A87C4F]/8 text-[#F0EDE8]"
+                    : "border-[#EAE6D8] bg-[#FAF8F4] hover:border-[#A87C4F]/40 hover:bg-[#FBF7F2] text-[#2A2520]"
+                )}
+              >
+                <Wand2 size={14} className="text-[#A87C4F] flex-none" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold leading-tight">Pilih Template</p>
+                  <p className={cn("text-[10px] leading-tight", dark ? "text-white/45" : "text-[#A0998A]")}>
+                    Template siap pakai untuk berbagai jenis bisnis
+                  </p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Touch drag ghost */}
       {touchDragAsset && (

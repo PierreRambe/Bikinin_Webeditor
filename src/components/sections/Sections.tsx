@@ -127,9 +127,9 @@ const PLANS = [
   {
     name: "Free",
     price: 0,
-    period: "selamanya",
+    period: "1x ",
     desc: "Mulai membangun website tanpa biaya apapun",
-    dragLimit: "Semua section",
+    dragLimit: "1 halaman",
     features: [
       "Semua section & aset dasar gratis",
       "Drag & drop builder lengkap",
